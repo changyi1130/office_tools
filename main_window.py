@@ -11,6 +11,7 @@ from function.compute_pdf_pages import process_pdf_pages
 from function.compute_word_statistics import process_word_statistics
 # 提取文件页数（PDF 和 Word）
 from function.count_file_pages import count_file_pages
+
 # 打开特殊字符表
 from function.open_web import open_character
 
@@ -22,6 +23,9 @@ from function.highlight_terms_in_word import run_highlight_term
 from function.text_segmentation import text_segmentation
 # 高亮修订内容
 from function.highlight_revisions import run_highlight_revisions
+
+# 转高、低版本
+from function.convert_doc import convert_doc, convert_docx, convert_to_pdf
 
 # 创建主应用程序类
 class Main_App:
@@ -177,6 +181,15 @@ if __name__ == "__main__":
     app.create_button_root(button_frame_3_1, '标记高频词\n(测试)', text_segmentation, root, app)
     app.create_button_cb(button_frame_3_1, '高亮修订内容\n(测试)', run_highlight_revisions)
 
+    # 转存文件
+    app.create_separator()
+    app.create_label('转存文件')
+    button_frame_4_1 = app.create_button_frame()
+    app.create_button_cb(button_frame_4_1, '存为低版本\n(doc)', convert_docx)
+    app.create_button_cb(button_frame_4_1, '存为高版本\n(docx)', convert_doc)
+    app.create_button_cb(button_frame_4_1, '存为 PDF\n(pdf)', convert_to_pdf)
+
+    # 执行
     print("程序开始")
     root.mainloop()
 

@@ -17,6 +17,8 @@ def get_file_info(file_path, type='all_name'):
     elif type == 'all_name':
         # 文件全名
         return file_path[position_backslash+1:]
+    elif type == 'except':
+        return file_path[:position_point]
     elif type == 'ext':
         # 带点扩展名
         return file_path[position_point:]
