@@ -41,7 +41,7 @@ class Progress_bar:
         # self.root.mainloop()
 
     def update_progress(self, increment):
-    # 更新进度条
+    # 更新状态信息
         if self.is_closed:
             return
 

@@ -1,12 +1,12 @@
 import os
 
-def write_to_txt(texts, directory, filename):
+def write_text(texts, directory, filename):
     """
     写入文本至记事本
 
-    :param texts: 待写入的文本列表
-    :param directory: 文件夹路径
-    :param filename: 文件名
+    :param texts: 待写入的文本，建议是列表或字符串
+    :param directory: 记事本的位置
+    :param filename: 记事本名称
     """
 
     txt_file = os.path.join(directory, filename)

@@ -1,10 +1,10 @@
 /.vscode/
-/__pycache__/
 /build/
 /dist/
 /GPT示例代码/
 /Test/
 /base/__pycache__/
 /function/__pycache__/
+__pycache__
 main_window.spec
 test.py
