@@ -8,7 +8,7 @@ from import_functions import *
 class MainApp:
     def __init__(self, root):
         self.root = root
-        self.version = 'V0.0.7'
+        self.version = 'V0.0.8'
         self.setup_window()
         self.create_menu_bar()
         self.label_info = self.create_info_label()
@@ -86,6 +86,8 @@ class MainApp:
         frame_1_1 = self.create_button_frame()
         self.create_button(frame_1_1, '提取页数', count_file_pages, self.update_info)
         self.create_button(frame_1_1, '检查字体\n(测试)', process_check_text, self.update_info)
+        self.create_button(frame_1_1, '添加编号\n(测试)', process_add_index, self.update_info)
+        self.create_button(frame_1_1, '删除编号\n(测试)', process_del_index, self.update_info)
         self.create_separator()
 
         # 第二部分

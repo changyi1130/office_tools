@@ -2,6 +2,8 @@
 from functional_module.count_file_pages import count_file_pages
 # 检查使用的字体
 from functional_module.get_used_fonts import process_check_text
+# 文件添加编号
+from functional_module.rename import process_add_index, process_del_index
 
 # 比较 Word
 from functional_module.compare_documents import select_and_compare_doc
