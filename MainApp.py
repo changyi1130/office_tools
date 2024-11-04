@@ -8,7 +8,7 @@ from import_functions import *
 class MainApp:
     def __init__(self, root):
         self.root = root
-        self.version = 'V0.0.8'
+        self.version = 'V0.0.9'
         self.setup_window()
         self.create_menu_bar()
         self.label_info = self.create_info_label()

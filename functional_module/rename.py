@@ -11,7 +11,7 @@ import glob
 import os
 import re
 import ctypes
-from natsort import ns, natsorted
+from natsort import os_sorted
 from tkinter import filedialog
 
 from other_functions.extract_file_name import extract_file_name
@@ -26,9 +26,16 @@ def get_dirs(root_dir):
     """提取目录"""
     path = root_dir + "\\*"
 
-    all_files = glob.glob(path)
+    dirs = []
 
-    dirs = [dir for dir in all_files if os.path.isdir(dir)]
+    # 递归目录
+    for dir in glob.glob(path):
+        if os.path.isdir(dir):
+            dirs.append(dir)
+            dirs.extend(get_dirs(dir))
+
+    # Windows 顺序
+    dirs = os_sorted(dirs)
 
     return dirs
 
@@ -40,12 +47,10 @@ def get_files(root_dir):
 
     files = [dir for dir in all_files if not os.path.isdir(dir) and not is_hidden(dir)]
 
-    files = natsorted(files, alg=ns.PATH)
+    # Windows 顺序
+    files = os_sorted(files)
 
     return files
-    
-    # for dir in dirs_list:
-    #     get_files(dir, files_list)
 
 def add_index(old_files):
     """添加编号"""
@@ -106,7 +111,6 @@ def process_add_index(update_info):
     files_list = []
     dirs_list = [path]
 
-    # get_files(path, files_list)
     # 分析路径
     dirs_list += get_dirs(path)
 
