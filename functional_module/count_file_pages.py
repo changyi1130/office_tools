@@ -23,7 +23,7 @@ def count_file_pages(update_info):
     if any(f.lower().endswith('.doc') or f.lower().endswith('.docx') for f in file_paths):
         # 尝试启动 Word 应用程序
         try:
-            word_app = win32com.client.DispatchEx('Word.Application')
+            word_app = win32com.client.gencache.EnsureDispatch('Word.Application')
             print("Word 应用程序已启动")
             
         except Exception as e:
@@ -51,7 +51,9 @@ def count_file_pages(update_info):
                 doc = word_app.Documents.Open(file_path)
                 count = statistics_of_word_information(doc, 2, False)
                 filename = extract_file_name(file_path=file_path, type='full_name')
-                results.append(f"{filename}\t{count}")
+                result = f"{filename}\t{count}"
+                print(result)
+                results.append(result)
 
             except Exception as e:
                 update_info(f"调用 statistics_of_word_information 时出错: {e}")
@@ -73,7 +75,7 @@ def count_file_pages(update_info):
 
     # 写入 txt 文件
     results.sort()
-    write_text(texts=results, directory=work_directory, filename='000_count_files_pages.txt')
+    write_text(texts=results, directory=work_directory, filename='000_count_file_pages.txt')
     
     update_info(f"已统计 {total_files} 个文件，报告保存在文件目录下")
 

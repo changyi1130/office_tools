@@ -49,6 +49,7 @@ def highlight_terms_in_word(doc, terms, update_info):
 
                     # 高亮显示术语
                     highlight_range.HighlightColorIndex = win32.constants.wdYellow # 使用黄色高亮
+                    # highlight_range.HighlightColorIndex = 7 # 使用黄色高亮
 
                     # 更新计数和日志
                     highlighted_count += 1

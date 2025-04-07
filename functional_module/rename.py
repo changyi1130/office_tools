@@ -162,3 +162,23 @@ def process_del_index(update_info):
         update_info("已为目录下所有文件删除编号")
 
     print("文件删除编号执行完成")
+
+def add_suffix(old_files):
+    """添加后缀"""
+    
+    new_files = []
+    
+    list_suffix = ("-译前", "-AI", "-QC", "-译后", "-有标红")
+    add_suffix_num = "0123"
+
+    suffix = ""
+    for num in range(len(add_suffix_num)):
+        suffix += list_suffix[add_suffix_num[num]]
+    
+    print(suffix)
+        
+    # for file in old_files:
+    #     dir = extract_file_name(file, "direction")
+    #     filename = extract_file_name(file, "full_name")
+
+        
