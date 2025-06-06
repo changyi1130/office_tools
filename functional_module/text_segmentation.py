@@ -1,17 +1,15 @@
 import jieba
-import jieba.posseg as pseg
 import win32com.client
 import tkinter as tk
 import tkinter.messagebox
 
 from collections import Counter
 
-from document_processing.WordAppManager import WordAppManager
 from file_processing.open_single_file import open_single_file
 from functional_module.highlight_terms_in_word import highlight_terms_in_word
-from other_functions.contains_chinese import contains_chinese
-from other_functions.extract_file_name import extract_file_name 
-from other_functions.write_text import write_text
+from core.utils.contains_chinese import contains_chinese
+from core.utils.extract_path_components import extract_file_name
+from core.utils.write_text_to_file import write_text
 
 # 词频和长度
 user_count = None

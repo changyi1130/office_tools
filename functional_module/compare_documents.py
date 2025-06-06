@@ -1,8 +1,8 @@
 """比较 Word"""
 
-from document_processing.WordAppManager import WordAppManager
+from core.utils.WordAppManager import WordAppManager
 from file_processing.open_single_file import open_single_file
-from other_functions.extract_file_name import extract_file_name
+from core.utils.extract_path_components import extract_file_name
 
 def compare_documents(doc1_path, doc2_path):
     """比较 Word"""

@@ -1,13 +1,14 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 
-from gui.progress_window import ProgressWindow
+from gui.tooltip import ToolTip
 from config.buttons import BUTTON_GROUPS
 from config.styles import StyleManager
 
 
 class MainWindow(tk.Tk):
-    """ 主窗口 """
+    """主窗口"""
+
     def __init__(self):
         super().__init__()
         self.version = "V0.0.10"
@@ -21,19 +22,19 @@ class MainWindow(tk.Tk):
         self.button_groups = BUTTON_GROUPS
         self._create_buttons()
 
-        self._create_info_label()
+        self._create_label_info()
 
     def _setup_window(self):
+        """窗口基础设置"""
         self.title("集装箱")
-        width, height = 505, 600
-        screenwidth = self.winfo_screenwidth()
-        screenheight = self.winfo_screenheight()
-        self.geometry('%dx%d+%d+%d' % (
-            width, height, (screenwidth - width) / 2, (screenheight - height) / 2))
-        self.resizable(False, False)
+        width, height = 505, 700
+        screen_width = self.winfo_screenwidth()
+        screen_height = self.winfo_screenheight()
+        self.geometry(f"{width}x{height}+{(screen_width - width) // 2}+{(screen_height - height) // 2}")
+        self.resizable(False, False)  # 禁止修改窗口大小
 
     def _create_buttons(self):
-        """ 创建功能按钮 """
+        """创建功能按钮"""
         # 主容器
         main_frame = ttk.Frame(self)
         main_frame.pack(fill="both", expand=True, padx=10, pady=10)
@@ -48,7 +49,7 @@ class MainWindow(tk.Tk):
             btn_container = ttk.Frame(group_frame)
             btn_container.pack(fill="x", expand=True)
 
-            cols = 4 # 每行按钮个数
+            cols = 4  # 每行按钮个数
             for idx, btn_info in enumerate(group["button"]):
                 row = idx // cols
                 col = idx % cols
@@ -56,8 +57,9 @@ class MainWindow(tk.Tk):
                 btn = ttk.Button(
                     btn_container,
                     text=btn_info["text"],
-                    command=btn_info["command"],
+                    command=self._create_button_command(btn_info)
                 )
+                ToolTip(btn, btn_info["tip"])
 
                 # 按钮间距
                 btn.grid(
@@ -65,18 +67,13 @@ class MainWindow(tk.Tk):
                     column=col,
                     padx=5,
                     pady=5,
-                    sticky="ew",    # 水平拉伸
-                    ipadx=2,        # 内边距
+                    sticky="ew",  # 水平拉伸
+                    ipadx=2,  # 内边距
                     ipady=2
                 )
 
-            # 设置按钮容器自动换行
-            # btn_container.grid_columnconfigure(0, weight=1)
-            # for col in range(cols):
-            #     btn_container.grid_columnconfigure(col, weight=1)
-
-    def _create_info_label(self):
-        """ 创建信息提示标签 """
+    def _create_label_info(self):
+        """创建信息提示标签"""
         # 添加一条分隔符
         self.label_info_before_separator = ttk.Separator(self, orient='horizontal')
         self.label_info_before_separator.pack(fill="x", padx=30, pady=(15, 5))
@@ -88,15 +85,28 @@ class MainWindow(tk.Tk):
         )
         self.label.pack(side="bottom", pady=(10, 20))
 
-        # 进度条
-        self.progress = ttk.Progressbar(self)
-        self.progress.pack(padx=50, pady=10, fill="x")
-        self.progress.pack_forget()
-
-    def update_info(self, info_text, progress):
-        """ 更新提示信息 """
-        self.label.text = info_text
-        self.progress.value = progress
-
+    def update_info(self, info_text):
+        """更新提示信息"""
+        self.label.config(text=info_text)
         self.label.update()
-        self.progress.update()
+
+    def _create_button_command(self, btn_info):
+        """绑定功能"""
+
+        def wrapper():
+
+            try:
+                # 获取函数参数
+                kwargs = btn_info.get("command_kwargs", {})
+
+                # 添加 update_info 参数（如有）
+                if "update_info" in btn_info["command"].__code__.co_varnames:
+                    kwargs["update_info"] = self.update_info
+
+                # 调用命令函数
+                btn_info["command"](**kwargs)
+            except Exception as e:
+                # 统一错误处理
+                self.update_info(f"执行错误：{str(e)}")
+
+        return wrapper

@@ -14,8 +14,8 @@ import ctypes
 from natsort import os_sorted
 from tkinter import filedialog
 
-from other_functions.extract_file_name import extract_file_name
-from other_functions.write_text import write_text
+from core.utils.extract_path_components import extract_file_name
+
 
 def is_hidden(file):
     """检查文件是否为隐藏"""

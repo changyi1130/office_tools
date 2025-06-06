@@ -2,10 +2,10 @@ import win32com.client as win32
 import logging
 import os
 
-from document_processing.WordAppManager import WordAppManager
+from core.utils.WordAppManager import WordAppManager
 from file_processing.open_single_file import open_single_file
-from other_functions.contains_chinese import contains_chinese
-from other_functions.extract_file_name import extract_file_name
+from core.utils.contains_chinese import contains_chinese
+from core.utils.extract_path_components import extract_file_name
 
 # 配置日志
 # 获取用户文档目录

@@ -2,19 +2,28 @@ from tkinter import ttk
 
 
 class StyleManager:
-    """ 集中管理所有 TTK 样式 """
+    """集中管理所有 TTK 样式"""
+
     @staticmethod
     def setup_style(root):
         style = ttk.Style(root)
 
+        # style.theme_use("clam")
+
+        # style.configure(
+        #     root,
+        #     background="#f0f0f0",
+        #     foreground="#000000",
+        # )
+
         # 按钮样式
         style.configure(
             "TButton",
-            antialias=True,
             padding=5,
-            anchor="center",
-            width=11,
-            height=2
+            justify="center",
+            width=12,
+            # background="#EFF1F5",
+            wraplength=80,  # 字符换行
         )
 
         # Labelframe 样式
@@ -25,6 +34,6 @@ class StyleManager:
 
         style.configure(
             "TLabelframe.Label",
-            antialias=True,
-            font=("微软雅黑", 12, "bold")
+            relief="groove",
+            font=("微软雅黑", 14, "bold")
         )

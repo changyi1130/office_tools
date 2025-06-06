@@ -2,9 +2,9 @@
 
 import win32com.client as win32
 
-from document_processing.WordAppManager import WordAppManager
+from core.utils.WordAppManager import WordAppManager
 from file_processing.open_single_file import open_single_file
-from other_functions.extract_file_name import extract_file_name
+from core.utils.extract_path_components import extract_file_name
 
 def highlight_revisions(doc):
     """高亮修订内容"""

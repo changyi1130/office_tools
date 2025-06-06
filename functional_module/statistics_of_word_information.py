@@ -11,13 +11,10 @@ wdStatisticCharactersWithSpaces    5   字符数(计空格)
 wdStatisticFarEastCharacters       6   中文字符和朝鲜语单词
 """
 
-import win32com.client
-import tkinter.messagebox
-
-from document_processing.WordAppManager import WordAppManager
+from core.utils.WordAppManager import WordAppManager
 from file_processing.open_multiple_files import open_multiple_files
-from other_functions.extract_file_name import extract_file_name
-from other_functions.write_text import write_text
+from core.utils.extract_path_components import extract_file_name
+from core.utils.write_text_to_file import write_text
 
 # 不知道有什么用
 # global_progress = None

@@ -1,11 +1,8 @@
 """高版本 Word 转低版本，低版本 Word 转高版本"""
 
-import win32com.client
-import tkinter.messagebox
-
-from document_processing.WordAppManager import WordAppManager
+from core.utils.WordAppManager import WordAppManager
 from file_processing.open_multiple_files import open_multiple_files
-from other_functions.extract_file_name import extract_file_name
+from core.utils.extract_path_components import extract_file_name
 
 def convert_doc_to_docx(filename, doc):
     """另存为高版本"""

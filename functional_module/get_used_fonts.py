@@ -3,8 +3,8 @@ from docx import Document
 from docx.oxml.ns import qn
 
 from file_processing.open_multiple_files import open_multiple_files
-from other_functions.extract_file_name import extract_file_name
-from other_functions.write_text import write_text
+from core.utils.extract_path_components import extract_file_name
+from core.utils.write_text_to_file import write_text
 
 def check_text(file_path, function):
     """

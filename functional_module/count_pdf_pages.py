@@ -1,11 +1,10 @@
 """提取 PDF 页数"""
 
 import fitz # PyMuPDF
-import tkinter.messagebox
 
 from file_processing.open_multiple_files import open_multiple_files
-from other_functions.extract_file_name import extract_file_name
-from other_functions.write_text import write_text
+from core.utils.extract_path_components import extract_file_name
+from core.utils.write_text_to_file import write_text
 
 def count_pdf_pages(file_path):
     """提取 PDF 页数"""
@@ -51,3 +50,5 @@ def process_pdf_pages(update_info):
 
         # 写入 txt 文件
         write_text(texts=results, directory=work_directory, filename='000_count_PDF_pages.txt')
+
+        return
