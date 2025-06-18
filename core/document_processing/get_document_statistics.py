@@ -1,13 +1,17 @@
 """Word 文档信息统计工具"""
 
-import win32com.client as win32
+from enum import IntEnum
 from pathlib import Path
 from typing import Callable
-from enum import IntEnum
+
+import win32com.client as win32
+from natsort import os_sorted
+
+from core.utils.CountResult import CountResult
 from core.utils.WordAppManager import WordAppManager
-from core.utils.open_file_dialog import open_file_dialog
-from core.utils.write_text_to_file import write_text_to_file
 from core.utils.exceptions import DocumentProcessingError
+from core.utils.open_file_dialog import open_file_dialog
+from core.utils.write_report_to_excel import write_report_to_excel
 
 
 # 定义统计类型枚举（更清晰）
@@ -97,7 +101,7 @@ def process_word_statistics(
         with WordAppManager() as word_app:
             for i, file_path in enumerate(file_paths, 1):
                 file_path = Path(file_path)
-                update_info(f"处理中：{i} / {total_files}\n{file_path.name}")
+                update_info(f"处理中：{i} / {total_files}")
 
                 try:
                     # 打开文档
@@ -105,21 +109,30 @@ def process_word_statistics(
 
                     # 获取统计信息
                     count = get_document_statistics(doc, statistic_type, include_notes)
-                    results.append(f"{file_path.name}\t{count}")
+                    results.append(CountResult(file_path=file_path, page_count=count))
+                    # results.append(f"{file_path.name}\t{count}")
 
                 except DocumentProcessingError as e:
                     # 记录错误但继续处理其他文件
-                    results.append(f"{file_path.name}\t错误: {str(e)}")
+                    results.append(CountResult(file_path=file_path, error=f"错误: {str(e)}"))
+                    # results.append(f"{file_path.name}\t错误: {str(e)}")
                 finally:
                     # 确保文档关闭
                     if 'doc' in locals():
                         doc.Close(SaveChanges=False)
 
+        # 处理结果
+        result_data = [result.to_row() for result in results]
+        result_data = os_sorted(result_data, key=lambda r: r[0])
+
         # 生成报告
-        report_name = f"000--文档统计-{stat_desc}.txt"
+        report_name = f"000--文档统计-{stat_desc}.xlsx"
         report_path = output_dir / report_name
-        write_text_to_file("\n".join(results), report_path)
-        write_text_to_file(contents=results, target_path=report_path)
+        column_headers = ['文件名称', stat_desc]
+        # write_text_to_file(contents=results, target_path=report_path)
+        write_report_to_excel(report_data=result_data,
+                              column_headers=column_headers,
+                              output_path=report_path)
 
         update_info(f"统计完成！报告已保存至:\n{report_path}")
 

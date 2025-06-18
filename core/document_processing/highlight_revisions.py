@@ -1,11 +1,13 @@
 """Word文档修订内容高亮工具"""
 
-import win32com.client as win32
 from pathlib import Path
 from typing import Callable
+
+import win32com.client as win32
+
 from core.utils.WordAppManager import WordAppManager
-from core.utils.open_file_dialog import open_file_dialog
 from core.utils.exceptions import DocumentProcessingError
+from core.utils.open_file_dialog import open_file_dialog
 
 # Word修订类型常量（更易读的命名）
 REVISION_FORMATTING = 10  # 格式修订

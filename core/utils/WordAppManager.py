@@ -5,9 +5,9 @@ class WordAppManager:
     """管理 Word 对象"""
 
     def __enter__(self):
-        # self.word_app = win32com.client.DispatchEx('Word.Application')
-        self.word_app = win32.gencache.EnsureDispatch('Word.Application')
-        self.word_app.Visible = False
+        self.word_app = win32.DispatchEx('Word.Application')
+        # self.word_app = win32.gencache.EnsureDispatch('Word.Application')
+        self.word_app.Visible = True
         return self.word_app
 
     def __exit__(self, exc_type, exc_value, traceback):

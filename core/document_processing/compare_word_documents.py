@@ -2,9 +2,10 @@
 
 from pathlib import Path
 from typing import Callable
+
 from core.utils.WordAppManager import WordAppManager
-from core.utils.open_file_dialog import open_file_dialog  # 假设已优化文件对话框
 from core.utils.exceptions import DocumentComparisonError  # 自定义异常
+from core.utils.open_file_dialog import open_file_dialog  # 假设已优化文件对话框
 
 
 def compare_word_documents(original_path: Path, modified_path: Path) -> Path:

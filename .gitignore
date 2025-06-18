@@ -1,11 +1,4 @@
-/.vscode/
+__pycache__/
+/.venv/
 /.idea/
-/build/
 /dist/
-/GPT示例代码/
-/Test/
-/base/__pycache__/
-/function/__pycache__/
-__pycache__
-*.spec
-test.py

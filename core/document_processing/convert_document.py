@@ -2,9 +2,10 @@
 
 from pathlib import Path
 from typing import Callable
+
 from core.utils.WordAppManager import WordAppManager
-from core.utils.open_file_dialog import open_file_dialog
 from core.utils.exceptions import DocumentConversionError
+from core.utils.open_file_dialog import open_file_dialog
 
 # 转换类型枚举
 CONVERSION_TYPES = {

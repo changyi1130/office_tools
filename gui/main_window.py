@@ -1,9 +1,9 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk
 
-from gui.tooltip import ToolTip
 from config.buttons import BUTTON_GROUPS
 from config.styles import StyleManager
+from gui.tooltip import ToolTip
 
 
 class MainWindow(tk.Tk):
@@ -54,23 +54,36 @@ class MainWindow(tk.Tk):
                 row = idx // cols
                 col = idx % cols
 
-                btn = ttk.Button(
-                    btn_container,
-                    text=btn_info["text"],
-                    command=self._create_button_command(btn_info)
-                )
-                ToolTip(btn, btn_info["tip"])
+                # 检查是否为占位符
+                if btn_info.get("placeholder", False):
+                    # 创建透明占位 Frame
+                    placeholder = ttk.Frame(btn_container)
+                    placeholder.grid(
+                        row=row,
+                        column=col,
+                        padx=5,
+                        pady=5,
+                        sticky="ew"
+                    )
+                else:
+                    # 创建正常按钮
+                    btn = ttk.Button(
+                        btn_container,
+                        text=btn_info["text"],
+                        command=self._create_button_command(btn_info)
+                    )
+                    ToolTip(btn, btn_info["tip"])
 
-                # 按钮间距
-                btn.grid(
-                    row=row,
-                    column=col,
-                    padx=5,
-                    pady=5,
-                    sticky="ew",  # 水平拉伸
-                    ipadx=2,  # 内边距
-                    ipady=2
-                )
+                    # 按钮间距
+                    btn.grid(
+                        row=row,
+                        column=col,
+                        padx=5,
+                        pady=5,
+                        sticky="ew",  # 水平拉伸
+                        ipadx=2,  # 内边距
+                        ipady=2
+                    )
 
     def _create_label_info(self):
         """创建信息提示标签"""
@@ -81,6 +94,7 @@ class MainWindow(tk.Tk):
         # 信息标签
         self.label = ttk.Label(
             text="集装箱 " + self.version,
+            justify='center',
             wraplength=400
         )
         self.label.pack(side="bottom", pady=(10, 20))

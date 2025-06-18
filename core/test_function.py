@@ -1,6 +1,6 @@
-from time import sleep
-from core.utils.open_file_dialog import open_file_dialog
 import pymupdf
+
+from core.utils.open_file_dialog import open_file_dialog
 
 
 def run_task(callback):
@@ -29,3 +29,22 @@ def pymupdf_test():
     doc = pymupdf.open(path)
 
     print(doc.page_count)
+
+
+def select_files_and_directories() -> Tuple[List[str], List[str]]:
+    """选择文件和目录"""
+    root = Tk()
+    root.withdraw()  # 隐藏主窗口
+
+    # 选择文件
+    file_paths = filedialog.askopenfilenames(
+        title="选择要处理的文件",
+        filetypes=[("所有文件", "*.*")]
+    )
+    file_paths = list(file_paths)
+
+    # 选择目录
+    dir_path = filedialog.askdirectory(title="选择要处理的目录")
+    dir_paths = [dir_path] if dir_path else []
+
+    return file_paths, dir_paths
