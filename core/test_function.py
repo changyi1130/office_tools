@@ -2,6 +2,8 @@ import pymupdf
 
 from core.utils.open_file_dialog import open_file_dialog
 
+from core.document_processing.unhide_all_content import execute_unhide_workflow
+
 
 def run_task(callback):
     print("开始测试……")
@@ -48,3 +50,6 @@ def select_files_and_directories() -> Tuple[List[str], List[str]]:
     dir_paths = [dir_path] if dir_path else []
 
     return file_paths, dir_paths
+
+if __name__ == "__main__":
+    execute_unhide_workflow()

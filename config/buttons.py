@@ -3,6 +3,8 @@
 from core.document_processing.compare_word_documents import compare_documents_with_ui
 # 高亮修订内容
 from core.document_processing.highlight_revisions import highlight_document_revisions
+# 取消 Word 中的隐藏
+from core.document_processing.unhide_all_content import execute_unhide_workflow
 
 """信息统计"""
 # 统计文件页数
@@ -32,7 +34,10 @@ BUTTON_GROUPS = [
              "command": highlight_document_revisions,
              "tip": "高亮 Word 中的修订内容",
              "placeholder": False},
-
+            {"text": "取消隐藏",
+             "command": execute_unhide_workflow,
+             "tip": "取消 Word 中的隐藏",
+             "placeholder": False}
         ]
     },
     {
@@ -85,7 +90,7 @@ BUTTON_GROUPS = [
         ]
     },
     {
-        "name": "更多",
+        "name": "网址",
         "button": [
             {"text": "特殊字符表",
              "command": characters,

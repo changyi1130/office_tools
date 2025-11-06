@@ -11,7 +11,7 @@ class MainWindow(tk.Tk):
 
     def __init__(self):
         super().__init__()
-        self.version = "V0.0.10"
+        self.version = "V0.0.11"
 
         self._setup_window()
 
