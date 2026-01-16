@@ -43,9 +43,9 @@ def get_document_statistics(
         include_notes: bool = True
 ) -> int:
     """
-    获取Word文档的统计信息
+    获取 Word 文档的统计信息
 
-    :param document: Word文档对象
+    :param document: Word 文档对象
     :param statistic_type: 统计类型
     :param include_notes: 是否包含页眉、页脚和尾注
     :return: 统计结果

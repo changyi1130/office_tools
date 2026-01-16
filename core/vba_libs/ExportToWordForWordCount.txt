@@ -1,0 +1,100 @@
+Sub ExportToWordForWordCount()
+    Dim wdApp As Object
+    Dim wdDoc As Object
+    Dim ws As Worksheet
+    Dim dataRange As Range
+    Dim lastRow As Long, lastCol As Long
+    Dim excelPath As String
+    Dim excelName As String
+    Dim savePath As String
+
+    ' 获取当前工作簿的路径和名称
+    excelPath = ThisWorkbook.Path
+    excelName = Left(ThisWorkbook.Name, InStrRev(ThisWorkbook.Name, ".") - 1)
+    excelName = Left(excelName, Len(excelName) - 5)
+
+    ' 构建保存路径
+    If excelPath <> "" Then
+        savePath = excelPath & "\" & excelName & "-导出文本.docx"
+    Else
+        ' 如果工作簿未保存，使用桌面路径
+        savePath = CreateObject("WScript.Shell").SpecialFolders("Desktop") & "\" & excelName & "-导出文本.docx"
+    End If
+
+    ' 创建Word应用
+    On Error Resume Next
+    Set wdApp = GetObject(, "Word.Application")
+    If Err.Number <> 0 Then
+        Set wdApp = CreateObject("Word.Application")
+    End If
+    On Error GoTo ErrHandler
+
+    ' 如果没有创建成功，静默退出
+    If wdApp Is Nothing Then
+        Exit Sub
+    End If
+
+    ' 创建新文档
+    Set wdDoc = wdApp.Documents.Add
+    wdApp.Visible = True  ' 不显示Word，后台运行
+
+    ' 遍历所有工作表
+    For Each ws In ActiveWorkbook.Worksheets
+        ' 跳过隐藏工作表
+        If ws.Visible = xlSheetVisible Then
+            ' 添加工作表名称标题
+            wdApp.Selection.TypeText Text:="[" & ws.Name & "]"
+            wdApp.Selection.TypeParagraph
+            wdApp.Selection.TypeParagraph
+
+            ' 检查工作表是否有内容
+            On Error Resume Next
+            lastRow = ws.Cells.Find("*", SearchOrder:=xlByRows, SearchDirection:=xlPrevious).Row
+            lastCol = ws.Cells.Find("*", SearchOrder:=xlByColumns, SearchDirection:=xlPrevious).Column
+            On Error GoTo ErrHandler
+
+            If lastRow > 0 And lastCol > 0 Then
+                ' 复制数据区域
+                Set dataRange = ws.Range("A1", ws.Cells(lastRow, lastCol))
+                dataRange.Copy
+                wdApp.Selection.Paste
+
+                wdApp.Selection.TypeParagraph
+            End If
+
+            ' 添加分隔空行
+            wdApp.Selection.TypeParagraph
+            wdApp.Selection.TypeParagraph
+        End If
+    Next ws
+
+    ' 保存文档（直接覆盖已存在的文件）
+    On Error Resume Next
+    wdDoc.SaveAs2 FileName:=savePath, FileFormat:=16  ' 16 = wdFormatDocumentDefault
+    wdDoc.Close
+
+    ' 退出Word应用
+    wdApp.Quit
+
+Cleanup:
+    ' 清理对象
+    On Error Resume Next
+    Set dataRange = Nothing
+    Set ws = Nothing
+    Set wdDoc = Nothing
+    Set wdApp = Nothing
+
+    Exit Sub
+
+ErrHandler:
+    ' 如果出错，尝试保存已导出的内容
+    On Error Resume Next
+    If Not wdDoc Is Nothing Then
+        wdDoc.SaveAs2 FileName:=savePath, FileFormat:=16
+        wdDoc.Close
+    End If
+    If Not wdApp Is Nothing Then
+        wdApp.Quit
+    End If
+    Resume Cleanup
+End Sub

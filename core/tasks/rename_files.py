@@ -34,7 +34,6 @@ def get_files(path: Path) -> List[str]:
             return []
 
         items = list(path.iterdir())
-        print(items)
         all_files = []
 
         # 分离文件和目录
@@ -44,7 +43,7 @@ def get_files(path: Path) -> List[str]:
             if item.is_dir():
                 dirs.append(item)
             elif item.is_file() and not is_file_hidden(str(item)):
-                files.append(item)
+                files.append(str(item))
 
         # 按 Windows 习惯排序
         files = os_sorted(files)
