@@ -4,6 +4,7 @@ from tkinter import ttk
 from config.buttons import BUTTON_GROUPS
 from config.styles import StyleManager
 from gui.tooltip import ToolTip
+from config.setting import Setting
 
 
 class MainWindow(tk.Tk):
@@ -11,7 +12,8 @@ class MainWindow(tk.Tk):
 
     def __init__(self):
         super().__init__()
-        self.version = "V0.0.12"
+        setting = Setting()
+        self.version = setting.version
 
         self._setup_window()
 
@@ -26,7 +28,7 @@ class MainWindow(tk.Tk):
 
     def _setup_window(self):
         """窗口基础设置"""
-        self.title("集装箱")
+        self.title("集装箱" + " V" + self.version)
         width, height = 505, 700
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()

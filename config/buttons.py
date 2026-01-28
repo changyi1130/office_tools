@@ -5,6 +5,8 @@ from core.document_processing.compare_word_documents import compare_documents_wi
 from core.document_processing.highlight_revisions import highlight_document_revisions
 # 取消 Word 中的隐藏
 from core.document_processing.unhide_all_content import execute_unhide_workflow
+# 将 Excel 中文本导出至 Word
+from core.document_processing.excel_to_word_export import execute_excel_vba_macro_on_files_simple
 
 """信息统计"""
 # 统计文件页数
@@ -13,6 +15,8 @@ from core.document_processing.count_file_pages import process_page_count_collect
 from core.document_processing.get_document_statistics import process_word_statistics, WordStatisticType
 # 添加、删除编号
 from core.tasks.rename_files import batch_add_prefix_numbers, batch_remove_prefix_numbers
+# 读取目录树
+from core.tasks.read_dirtree import read_dirtree
 
 """格式转换"""
 # 文档类型转换
@@ -37,7 +41,11 @@ BUTTON_GROUPS = [
             {"text": "取消隐藏",
              "command": execute_unhide_workflow,
              "tip": "取消 Word 中的隐藏",
-             "placeholder": False}
+             "placeholder": False},
+            {"text": "导出 Excel",
+             "command": execute_excel_vba_macro_on_files_simple,
+             "tip": "将 Excel 中所有内容导出至 Word，执行前勿必备份文件",
+             "placeholder": False},
         ]
     },
     {
@@ -66,6 +74,10 @@ BUTTON_GROUPS = [
             {"text": "删除编号",
              "command": batch_remove_prefix_numbers,
              "tip": "删除选择目录下所有文件开头的编号",
+             "placeholder": False},
+            {"text": "项目明细表",
+             "command": read_dirtree,
+             "tip": "生成一份包含项目明细表的 Excel",
              "placeholder": False}
         ]
     },
@@ -81,6 +93,11 @@ BUTTON_GROUPS = [
              "command": convert_document,
              "command_kwargs": {"conversion_type": "doc_to_docx"},
              "tip": "批量将 doc 存为 docx",
+             "placeholder": False},
+            {"text": "存为纯文本",
+             "command": convert_document,
+             "command_kwargs": {"conversion_type": "word_to_text"},
+             "tip": "批量将 Word 存为纯文本（txt）",
              "placeholder": False},
             {"text": "存为 PDF",
              "command": convert_document,

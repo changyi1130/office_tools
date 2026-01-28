@@ -6,6 +6,7 @@ from typing import Callable
 from core.utils.WordAppManager import WordAppManager
 from core.utils.exceptions import DocumentConversionError
 from core.utils.open_file_dialog import open_file_dialog
+from core.utils.run_vba_macro import run_vba_macro, execute_vba_on_document
 
 # 转换类型枚举
 CONVERSION_TYPES = {
@@ -23,6 +24,11 @@ CONVERSION_TYPES = {
         "filter": [("Word 文档", "*.doc*")],
         "function": "convert_to_pdf",
         "success_msg": "已转存为 PDF"
+    },
+    "word_to_text": {
+        "filter": [("Word 文档", "*.doc*")],
+        "function": "convert_to_text",
+        "success_msg": "已转存为纯文本"
     }
 }
 
@@ -34,7 +40,7 @@ def convert_document(
     """
     通用文档转换函数
 
-    :param conversion_type: 转换类型 (doc_to_docx, docx_to_doc, to_pdf)
+    :param conversion_type: 转换类型 (doc_to_docx, docx_to_doc, to_pdf, word_to_text)
     :param update_info: 状态更新回调函数
     """
     # 验证转换类型
@@ -70,12 +76,14 @@ def convert_document(
                     output_path = convert_to_docx(file_path, doc)
                 elif config["function"] == "convert_to_doc":
                     output_path = convert_to_doc(file_path, doc)
-                else:  # convert_to_pdf
+                elif config["function"] == "convert_to_pdf":
                     output_path = convert_to_pdf(file_path, doc)
+                elif config["function"] == "convert_to_text":
+                    output_path = convert_to_text(file_path, doc)
 
                 # 更新状态
                 success_count += 1
-                update_info(f"处理中：{i} / {total_files}\n{output_path.name}")
+                update_info(f"已完成：{i} / {total_files}\n{output_path.name}")
 
             except Exception as e:
                 error_msg = f"转换失败: {file_path.name} - {str(e)}"
@@ -117,4 +125,12 @@ def convert_to_pdf(original_path: Path, doc) -> Path:
 
     output_path = original_path.with_suffix(".pdf")
     doc.SaveAs2(FileName=str(output_path), FileFormat=17)  # wdFormatPDF
+    return output_path
+
+def convert_to_text(original_path: Path, doc) -> Path:
+    """将文档转换为 txt 格式"""
+    output_path = original_path.with_suffix(".txt")
+    # run_vba_macro(file_path=original_path, macro_name="SaveAsTextFile.SaveAsTextFile")
+    # return output_path
+    execute_vba_on_document(doc=doc, macro_name="SaveAsTextFile.SaveAsTextFile")
     return output_path
