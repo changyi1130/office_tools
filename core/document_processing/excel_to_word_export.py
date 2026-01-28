@@ -2,6 +2,7 @@ import os
 from typing import Callable
 
 import win32com.client as win32
+from core.utils.ExcelAppManager import ExcelAppManager
 from core.utils.open_file_dialog import open_file_dialog
 from core.utils.path_helper import get_resource_path
 from core.services.logger_service import setup_logger
@@ -109,44 +110,35 @@ def execute_excel_vba_macro_on_files_simple(update_info: Callable[[str], None] =
     success_count = 0
     fail_count = 0
 
-    for excel_file in excel_files:
-        try:
-            logger.info(f"开始处理文件: {excel_file}")
-            update_info(f"正在处理: {os.path.basename(excel_file)}...")
+    # 使用 ExcelAppManager 上下文管理器创建 Excel 应用实例
+    with ExcelAppManager() as excel_app:
+        excel_app.Visible = False  # 后台运行
+        excel_app.DisplayAlerts = False  # 不显示警告
+        logger.debug("Excel 应用实例创建成功")
 
-            # 创建 Excel 应用实例
-            excel_app = win32.DispatchEx('Excel.Application')
-            excel_app.Visible = False  # 后台运行
-            excel_app.DisplayAlerts = False  # 不显示警告
-            logger.debug("Excel 应用实例创建成功")
-
+        for excel_file in excel_files:
             try:
-                # 调用 add_and_run_vba_macro 函数处理文件
-                if add_and_run_vba_macro(excel_app, excel_file, vba_code):
-                    success_count += 1
-                    update_info(f"✓ 完成: {os.path.basename(excel_file)}")
-                else:
+                logger.info(f"开始处理文件: {excel_file}")
+                update_info(f"正在处理: {os.path.basename(excel_file)}...")
+
+                try:
+                    # 调用 add_and_run_vba_macro 函数处理文件
+                    if add_and_run_vba_macro(excel_app, excel_file, vba_code):
+                        success_count += 1
+                        update_info(f"✓ 完成: {os.path.basename(excel_file)}")
+                    else:
+                        fail_count += 1
+                        update_info(f"✗ 失败: {os.path.basename(excel_file)}")
+
+                except Exception as e:
+                    logger.error(f"处理文件 {excel_file} 时出错: {e}", exc_info=True)
                     fail_count += 1
-                    update_info(f"✗ 失败: {os.path.basename(excel_file)}")
+                    update_info(f"✗ 失败: {os.path.basename(excel_file)} - {str(e)}")
 
             except Exception as e:
-                logger.error(f"处理文件 {excel_file} 时出错: {e}", exc_info=True)
+                logger.error(f"处理文件 '{excel_file}' 时出错: {e}", exc_info=True)
                 fail_count += 1
                 update_info(f"✗ 失败: {os.path.basename(excel_file)} - {str(e)}")
 
-            finally:
-                # 确保 Excel 进程被关闭
-                try:
-                    excel_app.Quit()
-                    logger.debug("Excel 应用实例已关闭")
-                except Exception as e:
-                    logger.warning(f"关闭 Excel 应用实例时出错: {e}")
-                del excel_app
-
-        except Exception as e:
-            logger.error(f"处理文件 '{excel_file}' 时出错: {e}", exc_info=True)
-            fail_count += 1
-            update_info(f"✗ 失败: {os.path.basename(excel_file)} - {str(e)}")
-
     logger.info(f"批量处理完成: 成功 {success_count}, 失败 {fail_count}")
-    update_info(f"所有文件处理完成！成功: {success_count}, 失败: {fail_count}")
+    update_info(f"所有文件处理完成！成功: {success_count}, 失败 {fail_count}")

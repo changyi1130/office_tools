@@ -24,7 +24,7 @@ def hidden_untranslated_content(update_info: Callable[[str], None]):
     # 对文件执行宏
 
 
-def get_files(update_info: Callable[[str], None]) -> List[str]:
+def get_files(update_info: Callable[[str], None]) -> None:
     """获取要处理文件的路径"""
 
     files = open_file_dialog(
