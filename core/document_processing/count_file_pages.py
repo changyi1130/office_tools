@@ -87,12 +87,12 @@ class OfficeAppManager:
 
 
 def count_pdf_pages(file_path: Path) -> CountResult:
-    """统计PDF文件页数"""
+    """统计 PDF 文件页数"""
     try:
         with pymupdf.open(file_path) as doc:
             return CountResult(file_path, len(doc))
     except Exception as e:
-        return CountResult(file_path, error=f"PDF处理错误: {str(e)}")
+        return CountResult(file_path, error=f"PDF 处理错误: {str(e)}")
 
 
 def count_word_pages(word_app: win32.CDispatch, file_path: Path) -> CountResult:

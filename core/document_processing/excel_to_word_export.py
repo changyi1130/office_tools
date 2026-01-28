@@ -70,9 +70,12 @@ def add_and_run_vba_macro(excel_app, excel_file, vba_code) -> bool:
         return False
 
 
-def execute_excel_vba_macro_on_files_simple(update_info: Callable[[str], None] = None) -> None:
+def execute_excel_vba_macro_on_files_simple(progress_callback: Callable[..., None] = None) -> None:
     """
     执行 Excel VBA 宏
+    
+    参数:
+        progress_callback: 进度更新回调函数
     """
     logger.info("开始批量处理 Excel 文件")
 
@@ -85,7 +88,8 @@ def execute_excel_vba_macro_on_files_simple(update_info: Callable[[str], None] =
 
     if not excel_files:
         logger.info("未选择任何文件")
-        update_info("未选择任何文件")
+        if progress_callback:
+            progress_callback(message="未选择任何文件")
         return
 
     # 检查输入的 excel_files 是否为字符串类型
@@ -103,7 +107,8 @@ def execute_excel_vba_macro_on_files_simple(update_info: Callable[[str], None] =
         logger.debug("VBA 代码模板读取成功")
     except Exception as e:
         logger.error(f"读取 VBA 模板失败: {e}", exc_info=True)
-        update_info(f"读取 VBA 模板失败: {e}")
+        if progress_callback:
+            progress_callback(message=f"读取 VBA 模板失败: {e}")
         return
 
     # 3. 处理每个 Excel 文件
@@ -116,29 +121,36 @@ def execute_excel_vba_macro_on_files_simple(update_info: Callable[[str], None] =
         excel_app.DisplayAlerts = False  # 不显示警告
         logger.debug("Excel 应用实例创建成功")
 
-        for excel_file in excel_files:
+        total = len(excel_files)
+        for idx, excel_file in enumerate(excel_files):
             try:
                 logger.info(f"开始处理文件: {excel_file}")
-                update_info(f"正在处理: {os.path.basename(excel_file)}...")
+                if progress_callback:
+                    progress_callback(message=f"正在处理: {os.path.basename(excel_file)}")
 
                 try:
                     # 调用 add_and_run_vba_macro 函数处理文件
                     if add_and_run_vba_macro(excel_app, excel_file, vba_code):
                         success_count += 1
-                        update_info(f"✓ 完成: {os.path.basename(excel_file)}")
+                        if progress_callback:
+                            progress_callback(idx + 1, total, message=f"完成：{os.path.basename(excel_file)}")
                     else:
                         fail_count += 1
-                        update_info(f"✗ 失败: {os.path.basename(excel_file)}")
+                        if progress_callback:
+                            progress_callback(message=f"失败：{os.path.basename(excel_file)}")
 
                 except Exception as e:
                     logger.error(f"处理文件 {excel_file} 时出错: {e}", exc_info=True)
                     fail_count += 1
-                    update_info(f"✗ 失败: {os.path.basename(excel_file)} - {str(e)}")
+                    if progress_callback:
+                        progress_callback(message=f"失败：{os.path.basename(excel_file)} - {str(e)}")
 
             except Exception as e:
                 logger.error(f"处理文件 '{excel_file}' 时出错: {e}", exc_info=True)
                 fail_count += 1
-                update_info(f"✗ 失败: {os.path.basename(excel_file)} - {str(e)}")
+                if progress_callback:
+                    progress_callback(message=f"失败：{os.path.basename(excel_file)} - {str(e)}")
 
     logger.info(f"批量处理完成: 成功 {success_count}, 失败 {fail_count}")
-    update_info(f"所有文件处理完成！成功: {success_count}, 失败 {fail_count}")
+    if progress_callback:
+        progress_callback(total, total, f"所有文件处理完成！成功: {success_count}, 失败 {fail_count}")
