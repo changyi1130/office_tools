@@ -35,8 +35,7 @@ class ProgressWindow:
         text_frame = ttk.Frame(self.win)
         text_frame.pack(fill="both", expand=True, padx=30, pady=10)
 
-        self.text = tk.Text(text_frame, height=15, state="disabled", font=("微软雅黑", 9),
-                           relief="solid", borderwidth=1, wrap="none")
+        self.text = tk.Text(text_frame, height=15, state="disabled", font=("微软雅黑", 9), wrap="none")
         scrollbar = ttk.Scrollbar(text_frame, command=self.text.yview)
         self.text.configure(yscrollcommand=scrollbar.set)
 
