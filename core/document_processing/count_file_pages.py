@@ -1,5 +1,6 @@
 """高效批量文件页数统计工具"""
 from pathlib import Path
+from time import sleep
 from typing import List, Optional, Callable
 
 import pymupdf
@@ -9,10 +10,14 @@ from openpyxl import load_workbook
 from openpyxl.styles import Font, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 
+from core.services.logger_service import setup_logger
 from core.document_processing.get_document_statistics import get_document_statistics, WordStatisticType
 from core.utils.CountResult import CountResult
 from core.utils.open_file_dialog import open_file_dialog
 from core.utils.write_report_to_excel import write_report_to_excel
+
+# 设置日志记录器
+logger = setup_logger('count_file_pages', 'count_file_pages.log')
 
 
 class FileType:
@@ -90,8 +95,10 @@ def count_pdf_pages(file_path: Path) -> CountResult:
     """统计 PDF 文件页数"""
     try:
         with pymupdf.open(file_path) as doc:
+            logger.info(f"PDF 文件页数统计成功: {file_path.name} - {len(doc)} 页")
             return CountResult(file_path, len(doc))
     except Exception as e:
+        logger.error(f"PDF 处理错误: {file_path.name} - {str(e)}")
         return CountResult(file_path, error=f"PDF 处理错误: {str(e)}")
 
 
@@ -99,10 +106,13 @@ def count_word_pages(word_app: win32.CDispatch, file_path: Path) -> CountResult:
     """使用已打开的 Word 应用统计页数"""
     try:
         doc = word_app.Documents.Open(str(file_path))
+        sleep(1) # 等待文件启动
         page_count = get_document_statistics(document=doc, statistic_type=WordStatisticType.PAGES)
         doc.Close(SaveChanges=False)
+        logger.info(f"Word 文件页数统计成功: {file_path.name} - {page_count} 页")
         return CountResult(file_path, page_count)
     except Exception as e:
+        logger.error(f"Word 处理错误: {file_path.name} - {str(e)}")
         return CountResult(file_path, error=f"Word 处理错误: {str(e)}")
 
 
@@ -118,8 +128,10 @@ def count_ppt_pages(ppt_app: win32.CDispatch, file_path: Path, include_hidden: b
                 visible_slides += 1
 
         pres.Close()
+        logger.info(f"PPT 文件页数统计成功: {file_path.name} - {visible_slides} 页")
         return CountResult(file_path, visible_slides)
     except Exception as e:
+        logger.error(f"PPT 处理错误: {file_path.name} - {str(e)}")
         return CountResult(file_path, error=f"PPT 处理错误: {str(e)}")
 
 
@@ -135,13 +147,20 @@ def count_image_pages(file_path: Path) -> CountResult:
 
 def batch_count_file_pages(
         file_paths: list[Path],
-        update_info: Callable[[str], None]
+        progress_callback: Callable[..., None] = None
 ) -> List[CountResult]:
-    """高效批量统计文件页数"""
+    """高效批量统计文件页数
+    
+    参数:
+        file_paths: 文件路径列表
+        progress_callback: 进度更新回调函数
+    """
     results: list[CountResult] = []
     app_manager = OfficeAppManager()
     total_files = len(file_paths)
     current_file_num = 0  # 计数
+    
+    logger.info(f"开始批量统计 {total_files} 个文件的页数")
 
     try:
         # 按文件类型分组
@@ -156,59 +175,61 @@ def batch_count_file_pages(
         if 'word' in file_groups:
             word_app = app_manager.get_word_app()
             for i, file_path in enumerate(file_groups['word'], 1):
-                if update_info:
-                    current_file_num += 1
-                    update_info(f"处理中：{current_file_num} / {total_files}")
+                current_file_num += 1
+                if progress_callback:
+                    progress_callback(current_file_num, total_files, f"处理: {file_path.name}")
                 results.append(count_word_pages(word_app, file_path))
 
         # 处理PPT文件
         if 'ppt' in file_groups:
             ppt_app = app_manager.get_ppt_app()
             for i, file_path in enumerate(file_groups['ppt'], 1):
-                if update_info:
-                    current_file_num += 1
-                    update_info(f"处理中：{current_file_num} / {total_files}")
+                current_file_num += 1
+                if progress_callback:
+                    progress_callback(current_file_num, total_files, f"处理: {file_path.name}")
                 results.append(count_ppt_pages(ppt_app, file_path))
 
         # 处理PDF文件
         if 'pdf' in file_groups:
             for i, file_path in enumerate(file_groups['pdf'], 1):
-                if update_info:
-                    current_file_num += 1
-                    update_info(f"处理中：{current_file_num} / {total_files}")
+                current_file_num += 1
+                if progress_callback:
+                    progress_callback(current_file_num, total_files, f"处理: {file_path.name}")
                 results.append(count_pdf_pages(file_path))
 
         # 处理Excel文件
         if 'excel' in file_groups:
             for i, file_path in enumerate(file_groups['excel'], 1):
-                if update_info:
-                    current_file_num += 1
-                    update_info(f"处理中：{current_file_num} / {total_files}")
+                current_file_num += 1
+                if progress_callback:
+                    progress_callback(current_file_num, total_files, f"处理: {file_path.name}")
                 results.append(count_excel_pages(file_path))
 
         if 'image' in file_groups:
             for i, file_path in enumerate(file_groups['image'], 1):
-                if update_info:
-                    current_file_num += 1
-                    update_info(f"处理中：{current_file_num} / {total_files}")
+                current_file_num += 1
+                if progress_callback:
+                    progress_callback(current_file_num, total_files, f"处理: {file_path.name}")
                 results.append(count_image_pages(file_path))
 
         # 处理不支持的文件
         if 'unsupported' in file_groups:
             for i, file_path in enumerate(file_groups['unsupported'], 1):
-                if update_info:
-                    current_file_num += 1
-                    update_info(f"处理中：{current_file_num} / {total_files}")
+                current_file_num += 1
+                if progress_callback:
+                    progress_callback(current_file_num, total_files, f"不支持的文件类型: {file_path.name}")
                 results.append(CountResult(file_path, error="不支持的文件类型"))
 
     except Exception as e:
         # 整体错误处理
+        logger.error(f"批量处理失败: {str(e)}", exc_info=True)
         error_result = CountResult(Path(""), error=f"批量处理失败: {str(e)}")
         results = [error_result] * total_files
 
     finally:
         # 确保释放所有资源
         app_manager.close_all()
+        logger.info("所有 Office 应用已关闭")
 
     return results
 
@@ -239,13 +260,18 @@ def generate_page_count_report(
 
 
 def process_page_count_collection(
-        update_info: Optional[Callable[[str], None]] = None
+        progress_callback: Optional[Callable[..., None]] = None
 ) -> None:
-    """带UI的页数统计流程"""
+    """带UI的页数统计流程
+    
+    参数:
+        progress_callback: 进度更新回调函数
+    """
     try:
         # 选择文件
-        if update_info:
-            update_info("请选择要统计的文件...")
+        if progress_callback:
+            progress_callback(message="请选择要统计的文件...")
+        logger.info("准备选择文件进行页数统计")
 
         file_paths = open_file_dialog(
             "选择文件",
@@ -260,32 +286,35 @@ def process_page_count_collection(
         )
 
         if not file_paths:
-            if update_info:
-                update_info("已取消选择文件")
+            if progress_callback:
+                progress_callback(message="已取消选择文件")
+            logger.info("用户取消了文件选择")
             return
 
         # 转换路径对象
         file_paths = [Path(f) for f in file_paths]
         output_dir = file_paths[0].parent
+        logger.info(f"已选择 {len(file_paths)} 个文件，输出目录: {output_dir}")
 
         # 批量统计
-        if update_info:
-            update_info(f"开始统计 {len(file_paths)} 个文件的页数...")
-
-        results = batch_count_file_pages(file_paths, update_info)
+        if progress_callback:
+            progress_callback(message=f"开始统计 {len(file_paths)} 个文件的页数...")
+        results = batch_count_file_pages(file_paths, progress_callback)
 
         # 生成报告
         report_path = generate_page_count_report(results, output_dir)
+        logger.info(f"页数统计报告已生成: {report_path}")
 
         # 美化格式
         format_excel_file(str(report_path))
 
-        if update_info:
-            update_info(f"统计完成！报告已保存至:\n{report_path}")
+        if progress_callback:
+            progress_callback(len(file_paths), len(file_paths), f"统计完成！报告已保存至: {report_path}")
 
     except Exception as e:
-        if update_info:
-            update_info(f"统计失败: {str(e)}")
+        logger.error(f"页数统计失败: {str(e)}", exc_info=True)
+        if progress_callback:
+            progress_callback(message=f"统计失败: {str(e)}")
 
 
 def format_excel_file(file_path):
@@ -334,9 +363,9 @@ def format_excel_file(file_path):
 
         # 6. 保存更改
         wb.save(file_path)
-        print(f"✅ 文件格式化完成: {file_path}")
+        logger.info(f"文件格式化完成: {file_path}")
 
     except Exception as e:
         # 记录错误并重新抛出，方便上层函数处理
-        print(f"❌ 格式化文件时出错 {file_path}: {e}")
+        logger.error(f"格式化文件时出错 {file_path}: {e}", exc_info=True)
         raise

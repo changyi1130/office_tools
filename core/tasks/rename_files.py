@@ -13,6 +13,7 @@ from tkinter import filedialog
 from typing import List, Callable, Optional
 
 from natsort import os_sorted
+from pyexpat.errors import messages
 
 
 def is_file_hidden(file_path: str) -> bool:
@@ -128,23 +129,23 @@ def process_selected_directory(
         operation_name: str,
         file_processor: Callable[[List[str]], List[str]],
         success_msg: str,
-        update_info: Callable[[str], None]
+        progress_callback: Callable[..., None]
 ):
     """处理用户选择的目录"""
     # 获取用户选择
     selected_dir = select_directory()
 
     if not selected_dir:
-        update_info("未选择目录")
+        progress_callback(message="未选择目录")
         return
 
-    update_info(f"请稍后...")
+    progress_callback(message="请稍后...")
 
     # 获取目录中所有文件
     files = get_files(selected_dir)
 
     if not files:
-        update_info(f"目录中没有可处理的文件：{selected_dir}")
+        progress_callback(message=f"目录中没有可处理的文件：{selected_dir}")
         return
 
     # 处理文件
@@ -152,26 +153,26 @@ def process_selected_directory(
     success = rename_files(files, processed_files)
 
     if success:
-        update_info(f"{success_msg} ({len(files)}个文件)")
+        progress_callback(current=1, total=1, message=f"{success_msg} ({len(files)}个文件)")
     else:
-        update_info(f"{operation_name}部分失败，请检查文件")
+        progress_callback(message=f"{operation_name}部分失败，请检查文件")
 
 
 # 公共接口函数
-def batch_add_prefix_numbers(update_info: Callable[[str], None]) -> None:
+def batch_add_prefix_numbers(progress_callback: Callable[..., None]) -> None:
     """添加编号"""
     process_selected_directory(
         operation_name="添加编号",
         file_processor=add_numbered_prefix,
         success_msg="已为目录下所有文件添加编号",
-        update_info=update_info)
+        progress_callback=progress_callback)
 
 
-def batch_remove_prefix_numbers(update_info: Callable[[str], None]) -> None:
+def batch_remove_prefix_numbers(progress_callback: Callable[..., None]) -> None:
     """删除编号"""
     process_selected_directory(
         operation_name="删除编号",
         file_processor=remove_numbered_prefix,
         success_msg="已删除目录下所有文件的编号",
-        update_info=update_info
+        progress_callback=progress_callback
     )

@@ -1,17 +1,22 @@
 """Word文档格式转换工具"""
 
 from pathlib import Path
+from time import sleep
 from typing import Callable
 
+from core.services.logger_service import setup_logger
 from core.utils.WordAppManager import WordAppManager
 from core.utils.exceptions import DocumentConversionError
 from core.utils.open_file_dialog import open_file_dialog
 from core.utils.run_vba_macro import run_vba_macro, execute_vba_on_document
 
+# 设置日志记录器
+logger = setup_logger('convert_document', 'convert_document.log')
+
 # 转换类型枚举
 CONVERSION_TYPES = {
     "doc_to_docx": {
-        "filter": [("Word 97-2003 文档", "*.doc")],
+        "filter": [("Word 97-2003 文档", "*.doc"), ("RTF 文档", "*.rtf")],
         "function": "convert_to_docx",
         "success_msg": "已转存为高版本 DOCX"
     },
@@ -35,16 +40,17 @@ CONVERSION_TYPES = {
 
 def convert_document(
         conversion_type: str,
-        update_info: Callable[[str], None]
+        progress_callback: Callable[..., None] = None
 ) -> None:
     """
     通用文档转换函数
 
     :param conversion_type: 转换类型 (doc_to_docx, docx_to_doc, to_pdf, word_to_text)
-    :param update_info: 状态更新回调函数
+    :param progress_callback:message= 状态更新回调函数
     """
     # 验证转换类型
     if conversion_type not in CONVERSION_TYPES:
+        logger.error("无效的转换类型")
         raise DocumentConversionError(f"无效的转换类型: {conversion_type}")
 
     config = CONVERSION_TYPES[conversion_type]
@@ -57,11 +63,15 @@ def convert_document(
     )
 
     if not file_paths:
-        update_info("已取消转换")
+        if progress_callback:
+            progress_callback(message="未选择文件")
+        logger.info("未选择文件")
         return
 
     total_files = len(file_paths)
-    update_info(f"开始转换 {total_files} 个文件...")
+    if progress_callback:
+        progress_callback(message=f"开始转换 {total_files} 个文件...")
+    logger.info(f"开始转换 {total_files} 个文件...")
 
     success_count = 0
     with WordAppManager() as word_app:
@@ -70,6 +80,8 @@ def convert_document(
             try:
                 # 打开文档
                 doc = word_app.Documents.Open(str(file_path))
+                logger.info(f"打开文档: {file_path}")
+                sleep(1) # 等待文档加载完成
 
                 # 执行转换
                 if config["function"] == "convert_to_docx":
@@ -83,13 +95,15 @@ def convert_document(
 
                 # 更新状态
                 success_count += 1
-                update_info(f"已完成：{i} / {total_files}\n{output_path.name}")
+                if progress_callback:
+                    progress_callback(i, total_files, f"已完成：{output_path.name}")
+                logger.info(f"已处理文件：{file_path.name} -> {output_path.name}")
 
             except Exception as e:
                 error_msg = f"转换失败: {file_path.name} - {str(e)}"
-                update_info(f"({i} / {total_files}) {error_msg}")
-                # 记录详细错误日志
-                # logger.error(f"{file_path}: {traceback.format_exc()}")
+                if progress_callback:
+                    progress_callback(i, total_files, error_msg)
+                logger.error(f"转换失败：{file_path}: {str(e)}")
 
             finally:
                 # 确保文档关闭
@@ -101,7 +115,8 @@ def convert_document(
     if success_count < total_files:
         result_msg += f"，{total_files - success_count} 个文件失败"
 
-    update_info(result_msg)
+    if progress_callback:
+        progress_callback(total_files, total_files, result_msg)
 
 
 def convert_to_docx(original_path: Path, doc) -> Path:
