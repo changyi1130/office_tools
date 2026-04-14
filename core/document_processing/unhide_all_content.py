@@ -13,11 +13,47 @@ from core.utils.extract_path_components import extract_path_components
 # 设置日志记录器
 logger = setup_logger('unhide_all_content', 'unhide_all_content.log')
 
+
 def unhide_all_content(document):
-    """文档内容取消隐藏"""
+    """
+    文档内容取消隐藏（包括正文、页眉、页脚、文本框）
+    """
     logger.info("开始取消文档隐藏内容")
+
+    # 1. 处理正文内容
     document.Content.Font.Hidden = False
-    logger.info("已成功取消文档隐藏内容")
+    logger.debug("已取消正文隐藏")
+
+    # 2. 处理页眉和页脚
+    for section in document.Sections:
+        # 处理页眉 (使用数值常量)
+        for header in [section.Headers(1),   # wdHeaderFooterPrimary
+                       section.Headers(2),   # wdHeaderFooterFirstPage
+                       section.Headers(3)]:  # wdHeaderFooterEvenPages
+            if header.Exists:
+                header.Range.Font.Hidden = False
+                # 处理页眉中的文本框
+                for shape in header.Range.ShapeRange:
+                    if shape.Type == 17:  # msoTextBox
+                        shape.TextFrame.TextRange.Font.Hidden = False
+
+        # 处理页脚 (使用数值常量)
+        for footer in [section.Footers(1),   # wdHeaderFooterPrimary
+                       section.Footers(2),   # wdHeaderFooterFirstPage
+                       section.Footers(3)]:  # wdHeaderFooterEvenPages
+            if footer.Exists:
+                footer.Range.Font.Hidden = False
+                # 处理页脚中的文本框
+                for shape in footer.Range.ShapeRange:
+                    if shape.Type == 17:  # msoTextBox
+                        shape.TextFrame.TextRange.Font.Hidden = False
+
+    # 3. 处理正文中的文本框
+    for shape in document.Shapes:
+        if shape.Type == 17:  # msoTextBox
+            shape.TextFrame.TextRange.Font.Hidden = False
+
+    logger.info("已成功取消文档所有隐藏内容")
 
 def process_word_file(document, original_path: Path) -> str:
     """
@@ -110,7 +146,7 @@ def execute_unhide_workflow(progress_callback: Callable[..., None] = None):
         # 提示信息
         logger.info("所有文件已取消隐藏")
         if progress_callback:
-            progress_callback(total, total, "所有文件已取消隐藏。")
+            progress_callback(total, total, "所有文件已取消隐藏，等待进程结束...")
 
     except DocumentProcessingError as e:
         logger.error(f"文档处理错误: {str(e)}", exc_info=True)

@@ -55,26 +55,26 @@ def process_document_revisions(document, original_path: Path) -> Path:
     return output_path
 
 
-def highlight_document_revisions(update_info: Callable[[str], None]):
+def highlight_document_revisions(progress_callback: Callable[..., None]):
     """
     主处理函数：高亮显示Word文档中的修订内容
 
-    :param update_info: 状态更新回调函数
+    :param progress_callback: 状态更新回调函数
     """
     try:
         # 选择Word文档
-        update_info("请选择 Word 文档...")
+        progress_callback(message="请选择 Word 文档...")
         file_path = open_file_dialog(
             "选择 Word 文档",
             file_filter=[("Word 文档", "*.doc*")]
         )
 
         if not file_path:
-            update_info("已取消选择文档")
+            progress_callback(message="已取消选择文档")
             return
 
         file_path = Path(file_path)
-        update_info(f"处理中: {file_path.name}")
+        progress_callback(message=f"处理中: {file_path.name}")
 
         with WordAppManager() as word_app:
             # 打开文档
@@ -83,15 +83,15 @@ def highlight_document_revisions(update_info: Callable[[str], None]):
             try:
                 # 处理并保存文档
                 output_path = process_document_revisions(document, file_path)
-                update_info(f"处理完成: 结果已保存至\n{output_path}")
+                progress_callback(message=f"处理完成: 结果已保存至\n{output_path}")
 
             finally:
                 # 确保文档关闭
                 document.Close(SaveChanges=False)
 
     except DocumentProcessingError as e:
-        update_info(f"处理失败: {str(e)}")
+        progress_callback(message=f"处理失败: {str(e)}")
     except Exception as e:
-        update_info(f"发生意外错误: {str(e)}")
+        progress_callback(message=f"发生意外错误: {str(e)}")
         # 记录完整错误日志
         # logger.exception("高亮修订处理失败")

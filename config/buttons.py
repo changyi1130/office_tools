@@ -107,16 +107,18 @@ BUTTON_GROUPS = [
         ]
     },
     {
-        "name": "网址",
+        "name": "网页工具",
         "button": [
             {"text": "特殊字符表",
              "command": characters,
              "tip": "方便的复制特殊字符",
-             "placeholder": False},
+             "placeholder": False,
+             "simple": True},
             {"text": "切换大小写",
              "command": switch_case,
              "tip": "切换英文字母大小写，或跳转至网页翻译",
-             "placeholder": False}
+             "placeholder": False,
+             "simple": True}
         ]
     }
 ]

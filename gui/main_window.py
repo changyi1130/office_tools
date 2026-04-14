@@ -181,6 +181,11 @@ class MainWindow(tk.Tk):
                     self.message_queue.put(("error", "已有任务正在执行，请等待当前任务完成后再试。"))
                     return
 
+                # 检查是否为简单命令（不需要进度窗口）
+                if btn_info.get("simple", False):
+                    self._execute_simple_command(btn_info)
+                    return
+
                 # 设置任务执行状态
                 self.is_task_running = True
 
@@ -235,6 +240,17 @@ class MainWindow(tk.Tk):
             # 标记任务完成
             self.message_queue.put(("complete", None))
 
+        except Exception as e:
+            # 统一错误处理
+            self.message_queue.put(("error", str(e)))
+
+    def _execute_simple_command(self, btn_info):
+        """执行简单命令（不需要进度窗口和线程）"""
+        try:
+            # 获取函数参数
+            kwargs = btn_info.get("command_kwargs", {})
+            # 调用命令函数
+            btn_info["command"](**kwargs)
         except Exception as e:
             # 统一错误处理
             self.message_queue.put(("error", str(e)))
