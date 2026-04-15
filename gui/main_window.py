@@ -8,6 +8,10 @@ from config.styles import StyleManager
 from gui.tooltip import ToolTip
 from gui.progress_window import ProgressWindow
 from config.setting import Setting
+from core.services.logger_service import setup_logger
+
+# 初始化日志记录器
+logger = setup_logger(__name__, 'main_window.log')
 
 
 class MainWindow(tk.Tk):
@@ -165,8 +169,8 @@ class MainWindow(tk.Tk):
                         self.label.update()
                     # 重置任务执行状态
                     self.is_task_running = False
-        except:
-            pass
+        except Exception as e:
+            logger.error(f"检查消息队列时发生错误: {e}", exc_info=True)
 
         # 继续检查消息队列
         self.after(100, self._check_message_queue)

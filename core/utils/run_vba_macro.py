@@ -4,6 +4,9 @@ from pathlib import Path
 from core.utils.ExcelAppManager import ExcelAppManager
 from core.utils.WordAppManager import WordAppManager
 from core.utils.path_helper import get_resource_path
+from core.services.logger_service import setup_logger
+
+logger = setup_logger('run_vba_macro', 'run_vba_macro.log')
 
 
 def run_vba_macro(file_path, macro_name):
@@ -33,14 +36,14 @@ def run_vba_macro(file_path, macro_name):
                 if vba_template_path and os.path.exists(vba_template_path):
                     # 注意：AddIns 可能只在特定上下文中有效，视你的 VBA 模板类型而定
                     word_app.Application.AddIns.Add(vba_template_path).Installed = True
-                    print("成功加载 Word VBA")
+                    logger.info("成功加载 Word VBA")
                     # 执行宏
                     word_app.Application.Run(macro_name)
                     # 保存并关闭文档
                     doc.Save()
                     doc.Close()
                     # 注意：WordAppManager的__exit__方法应会负责退出应用
-                    print(f"成功在 Word 中执行宏 {macro_name}")
+                    logger.info(f"成功在 Word 中执行宏 {macro_name}")
 
         elif file_ext in ['.xls', '.xlsx']:
             # 使用 ExcelAppManager 上下文管理器
@@ -53,7 +56,7 @@ def run_vba_macro(file_path, macro_name):
 
                 # 如果需要，加载 VBA 模板
                 if vba_template_path and os.path.exists(vba_template_path):
-                    print("成功加载 Excel VBA")
+                    logger.info("成功加载 Excel VBA")
                     # 注意：AddIns 可能只在特定上下文中有效，视你的 VBA 模板类型而定
                     excel_app.Application.AddIns.Add(vba_template_path).Installed = True
 
@@ -63,16 +66,16 @@ def run_vba_macro(file_path, macro_name):
                     wb.Save()
                     wb.Close()
                     # 注意：ExcelAppManager的__exit__方法应会负责退出应用
-                    print(f"成功在Word中执行宏 {macro_name}")
+                    logger.info(f"成功在 Excel 中执行宏 {macro_name}")
 
         else:
             raise ValueError(f"不支持的文件格式: {file_ext}")
 
     except Exception as e:
         # 更详细的错误处理
-        print(f"处理文件 {file_path} 时出错:")
-        print(f"错误类型: {type(e).__name__}")
-        print(f"错误详情: {e}")
+        logger.error(f"处理文件 {file_path} 时出错:")
+        logger.error(f"错误类型: {type(e).__name__}")
+        logger.error(f"错误详情: {e}", exc_info=True)
         # 可以根据需要重新抛出异常或进行其他处理
         raise
 
@@ -97,12 +100,12 @@ def execute_vba_on_document(doc, macro_name):
         if vba_template_path and os.path.exists(vba_template_path):
             # 保持你原有的 AddIns 加载方式
             doc.Application.AddIns.Add(vba_template_path).Installed = True
-            print("✅ 成功加载 Word VBA 模板")
+            logger.info("成功加载 Word VBA 模板")
 
             # 执行宏
             doc.Application.Run(macro_name)
 
-            print(f"✅ 成功在文档中执行宏: {macro_name}")
+            logger.info(f"成功在文档中执行宏: {macro_name}")
 
         else:
             raise FileNotFoundError(f"VBA模板文件未找到: {vba_template_path}")
@@ -110,7 +113,7 @@ def execute_vba_on_document(doc, macro_name):
     except Exception as e:
         # 改进错误信息，包含文档名
         doc_name = doc.Name if hasattr(doc, 'Name') else '未知文档'
-        print(f"❌ 处理文档 '{doc_name}' 时出错:")
-        print(f"   错误类型: {type(e).__name__}")
-        print(f"   错误详情: {e}")
+        logger.error(f"处理文档 '{doc_name}' 时出错:")
+        logger.error(f"错误类型: {type(e).__name__}")
+        logger.error(f"错误详情: {e}", exc_info=True)
         raise
