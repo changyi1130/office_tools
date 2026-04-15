@@ -5,6 +5,8 @@ from core.document_processing.compare_word_documents import compare_documents_wi
 from core.document_processing.highlight_revisions import highlight_document_revisions
 # 取消 Word 中的隐藏
 from core.document_processing.unhide_all_content import execute_unhide_workflow
+# 隐藏不包含中文的段落
+from core.document_processing.hide_non_chinese_paragraphs import execute_hide_non_chinese_workflow
 # 将 Excel 中文本导出至 Word
 from core.document_processing.excel_to_word_export import execute_excel_vba_macro_on_files_simple
 
@@ -41,6 +43,10 @@ BUTTON_GROUPS = [
             {"text": "取消隐藏",
              "command": execute_unhide_workflow,
              "tip": "取消 Word 中的隐藏",
+             "placeholder": False},
+            {"text": "中文预编",
+             "command": execute_hide_non_chinese_workflow,
+             "tip": "隐藏不包含中文的段落",
              "placeholder": False},
             {"text": "导出 Excel",
              "command": execute_excel_vba_macro_on_files_simple,

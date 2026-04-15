@@ -7,10 +7,10 @@ class Setting:
 
     def __init__(self):
         # 应用版本
-        self.version = "0.1.7"
+        self.version = "0.1.8"
 
         # 日志配置
-        self.log_dir = Path(os.path.expanduser('~\Documents')) / 'OfficeTools' / 'logs'
+        self.log_dir = Path(os.path.expanduser(r'~\Documents')) / 'OfficeTools' / 'logs'
         self.log_dir.mkdir(parents=True, exist_ok=True)
 
         # VBA模板路径

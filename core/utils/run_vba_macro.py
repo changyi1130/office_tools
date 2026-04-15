@@ -11,7 +11,7 @@ logger = setup_logger('run_vba_macro', 'run_vba_macro.log')
 
 def run_vba_macro(file_path, macro_name):
     """
-    打开Office文件并执行指定的VBA宏。
+    打开 Office 文件并执行指定的 VBA 宏。
 
     :param file_path: 需要处理的目标文件路径（.docx, .xlsx等）
     :param macro_name: 要执行的宏的完整名称，例如 "MyTemplateModule.MyMacro"
