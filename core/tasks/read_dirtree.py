@@ -13,21 +13,21 @@ from core.utils.run_vba_macro import run_vba_macro
 from core.utils.write_report_to_excel import write_report_to_excel
 from core.tasks.rename_files import select_directory, is_file_hidden
 
-def read_dirtree(update_info: Callable[[str], None]):
+def read_dirtree(progress_callback: Callable[..., None]):
     """ 扫描选定目录，将文件列表生成结构化 Excel 报告 """
 
     # 选择目录
     selected_dir = select_directory()
     if not selected_dir:
-        update_info("操作已取消：未选择目录")
+        progress_callback(message="操作已取消：未选择目录")
         return
 
-    update_info(f"正在扫描目录，请稍候...")
+    progress_callback(message=f"正在扫描目录，请稍候...")
 
     # 获取文件列表（原始字符串路径）
     raw_file_paths = get_files(selected_dir)
     if not raw_file_paths:
-        update_info(f"目录中没有可处理的文件：{selected_dir}")
+        progress_callback(message=f"目录中没有可处理的文件：{selected_dir}")
         return
 
     # 转换为 Path 对象以便操作
@@ -51,12 +51,12 @@ def read_dirtree(update_info: Callable[[str], None]):
         # 导入格式化函数，请根据你的项目结构调整导入路径
         # 例如：from core.utils.excel_formatter import format_excel_file
         format_excel_file(str(output_excel_path))
-        update_info(f"已将项目明细表存至 {output_excel_path}")
+        progress_callback(message=f"已将项目明细表存至 {output_excel_path}")
     except Exception as e:
         # 如果格式化失败，报告仍然生成，只是格式未美化
-        update_info(f"文件已生成但格式化失败: {e}")
+        progress_callback(message=f"文件已生成但格式化失败: {e}")
 
-    update_info(f"已将项目明细表存至 {output_excel_path}")
+    # progress_callback(message=f"已将项目明细表存至 {output_excel_path}")
 
 
 def get_files(path: Path) -> List[str]:

@@ -65,20 +65,20 @@ def get_document_statistics(
 
 
 def process_word_statistics(
+        progress_callback: Callable[..., None],
         statistic_type: WordStatisticType = WordStatisticType.PAGES,
-        include_notes: bool = True,
-        update_info: Callable[[str], None] = None
+        include_notes: bool = True
 ) -> None:
     """
     主处理函数：收集 Word 文档统计信息
 
     :param statistic_type: 统计类型（默认页数）
     :param include_notes: 是否包含页眉页脚（默认 True）
-    :param update_info: 状态更新回调
+    :param progress_callback: 状态更新回调
     """
     try:
         # 选择Word文档
-        update_info("请选择要统计的 Word 文档...")
+        progress_callback(message="请选择要统计的 Word 文档...")
         file_paths = open_file_dialog(
             "选择 Word 文档",
             file_filter=[("Word 文档", "*.doc*")],
@@ -86,7 +86,7 @@ def process_word_statistics(
         )
 
         if not file_paths:
-            update_info("已取消选择文档")
+            progress_callback(message="已取消选择文档")
             return
 
         # 准备处理
@@ -95,13 +95,13 @@ def process_word_statistics(
         output_dir = Path(file_paths[0]).parent
         stat_desc = STATISTIC_DESCRIPTIONS[statistic_type]
 
-        update_info(f"开始统计 {total_files} 个文档的{stat_desc}...")
+        progress_callback(message=f"开始统计 {total_files} 个文档的{stat_desc}...")
 
         # 处理每个文档
         with WordAppManager() as word_app:
             for i, file_path in enumerate(file_paths, 1):
                 file_path = Path(file_path)
-                update_info(f"处理中：{i} / {total_files}")
+                progress_callback(message=f"处理中：{i} / {total_files}")
 
                 try:
                     # 打开文档
@@ -134,7 +134,7 @@ def process_word_statistics(
                               column_headers=column_headers,
                               output_path=report_path)
 
-        update_info(f"统计完成！报告已保存至:\n{report_path}")
+        progress_callback(message=f"统计完成！报告已保存至:\n{report_path}")
 
     except Exception as e:
-        update_info(f"统计失败: {str(e)}")
+        progress_callback(message=f"统计失败: {str(e)}")
