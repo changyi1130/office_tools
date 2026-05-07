@@ -28,6 +28,10 @@ from core.document_processing.convert_document import convert_document
 # 打开网页
 from core.webpages import characters, switch_case
 
+"""文件整理"""
+# 按原文目录结构整理译文文件
+from core.tasks.organize_files import organize_translation_files
+
 BUTTON_GROUPS = [
     {
         "name": "文档处理",
@@ -52,39 +56,6 @@ BUTTON_GROUPS = [
              "command": execute_excel_vba_macro_on_files_simple,
              "tip": "将 Excel 中所有内容导出至 Word，执行前勿必备份文件",
              "placeholder": False},
-        ]
-    },
-    {
-        "name": "信息统计",
-        "button": [
-            {"text": "统计页数",
-             "command": process_page_count_collection,
-             "tip": "统计文件的页数",
-             "placeholder": False},
-            {"text": "统计字数",
-             "command": process_word_statistics,
-             "command_kwargs": {"statistic_type": WordStatisticType.WORDS},
-             "tip": "统计 Word 文档的字数",
-             "placeholder": False},
-            {"text": "统计字符数",
-             "command": process_word_statistics,
-             "command_kwargs": {"statistic_type": WordStatisticType.CHARACTERS_NO_SPACES},
-             "tip": "统计 Word 文档的字符数(不计空格)",
-             "placeholder": False},
-            {"text": "占位符",
-             "placeholder": True},
-            {"text": "添加编号",
-             "command": batch_add_prefix_numbers,
-             "tip": "为选择目录下所有文件添加编号",
-             "placeholder": False},
-            {"text": "删除编号",
-             "command": batch_remove_prefix_numbers,
-             "tip": "删除选择目录下所有文件开头的编号",
-             "placeholder": False},
-            {"text": "项目明细表",
-             "command": read_dirtree,
-             "tip": "生成一份包含项目明细表的 Excel",
-             "placeholder": False}
         ]
     },
     {
@@ -113,7 +84,47 @@ BUTTON_GROUPS = [
         ]
     },
     {
-        "name": "网页工具",
+        "name": "文档统计",
+        "button": [
+            {"text": "统计页数",
+             "command": process_page_count_collection,
+             "tip": "统计文件的页数",
+             "placeholder": False},
+            {"text": "统计字数",
+             "command": process_word_statistics,
+             "command_kwargs": {"statistic_type": WordStatisticType.WORDS},
+             "tip": "统计 Word 文档的字数",
+             "placeholder": False},
+            {"text": "统计字符数",
+             "command": process_word_statistics,
+             "command_kwargs": {"statistic_type": WordStatisticType.CHARACTERS_NO_SPACES},
+             "tip": "统计 Word 文档的字符数(不计空格)",
+             "placeholder": False}
+        ]
+    },
+    {
+        "name": "批量整理",
+        "button": [
+            {"text": "添加编号",
+             "command": batch_add_prefix_numbers,
+             "tip": "为选择目录下所有文件添加编号",
+             "placeholder": False},
+            {"text": "删除编号",
+             "command": batch_remove_prefix_numbers,
+             "tip": "删除选择目录下所有文件开头的编号",
+             "placeholder": False},
+            {"text": "整理译文",
+             "command": organize_translation_files,
+             "tip": "按原文目录结构整理译文文件（基于文件名前缀编号）",
+             "placeholder": False},
+            {"text": "项目明细表",
+             "command": read_dirtree,
+             "tip": "生成一份包含项目明细表的 Excel",
+             "placeholder": False}
+        ]
+    },
+    {
+        "name": "实用工具",
         "button": [
             {"text": "特殊字符表",
              "command": characters,
