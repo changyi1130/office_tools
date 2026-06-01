@@ -41,11 +41,13 @@ class MainWindow(tk.Tk):
 
         # 任务执行状态
         self.is_task_running = False
+        self.progress_window: ProgressWindow | None = None
+
 
     def _setup_window(self):
         """窗口基础设置"""
         self.title("集装箱" + " V" + self.version)
-        width, height = 520, 700
+        width, height = 635, 700
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
         self.geometry(f"{width}x{height}+{(screen_width - width) // 2}+{(screen_height - height) // 2}")
@@ -67,7 +69,7 @@ class MainWindow(tk.Tk):
             btn_container = ttk.Frame(group_frame)
             btn_container.pack(fill="x", expand=True)
 
-            cols = 4  # 每行按钮个数
+            cols = 5  # 每行按钮个数
             for idx, btn_info in enumerate(group["button"]):
                 row = idx // cols
                 col = idx % cols

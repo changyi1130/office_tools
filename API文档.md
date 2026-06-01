@@ -74,14 +74,26 @@ OfficeTools 是一个基于 Python 的办公文档处理工具集，提供文档
 - Excel: 不统计页数，返回0
 - Image: 返回1页
 
-#### 1.5 Excel到Word导出 (excel_to_word_export.py)
+#### 1.5 PPT转PDF (convert_ppt_to_pdf.py)
+
+**convert_ppt_to_pdf(progress_callback)**
+- 描述：将 PowerPoint 演示文稿批量转换为 PDF
+- 参数：
+  - progress_callback (Callable): 进度更新回调函数
+- 支持的文件类型：PPT、PPTX
+- 说明：
+  - 使用 PowerPoint COM 自动化打开文件并另存为 PDF
+  - 转换完成后在进度框中提示 PDF→Word 的手动操作步骤
+  - PDF→Word 请用 Adobe Acrobat 手动操作
+
+#### 1.6 Excel到Word导出 (excel_to_word_export.py)
 
 **execute_excel_vba_macro_on_files_simple(progress_callback)**
 - 描述：执行 Excel VBA 宏，将 Excel 内容导出到 Word
 - 参数：
   - progress_callback (Callable): 进度更新回调函数
 
-#### 1.6 隐藏/取消隐藏内容
+#### 1.7 隐藏/取消隐藏内容
 
 **execute_hide_non_chinese_workflow(progress_callback)**
 - 描述：隐藏Word文档中不包含中文的段落

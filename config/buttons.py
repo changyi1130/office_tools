@@ -23,6 +23,8 @@ from core.tasks.read_dirtree import read_dirtree
 """格式转换"""
 # 文档类型转换
 from core.document_processing.convert_document import convert_document
+# PPT 转 PDF
+from core.document_processing.convert_ppt_to_pdf import convert_ppt_to_pdf
 
 """更多功能"""
 # 打开网页
@@ -80,6 +82,10 @@ BUTTON_GROUPS = [
              "command": convert_document,
              "command_kwargs": {"conversion_type": "to_pdf"},
              "tip": "批量将 docx 存为 pdf",
+             "placeholder": False},
+            {"text": "PPT 转 PDF",
+             "command": convert_ppt_to_pdf,
+             "tip": "批量将 PowerPoint 演示文稿转为 PDF",
              "placeholder": False}
         ]
     },
