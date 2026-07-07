@@ -1,4 +1,3 @@
-import win32com.client as win32
 from core.services.logger_service import setup_logger
 
 logger = setup_logger('WordAppManager', 'word_app_manager.log')
@@ -8,6 +7,7 @@ class WordAppManager:
     """管理 Word 对象"""
 
     def __enter__(self):
+        import win32com.client as win32
         self.word_app = win32.DispatchEx('Word.Application')
         # self.word_app = win32.gencache.EnsureDispatch('Word.Application')
         self.word_app.Visible = True

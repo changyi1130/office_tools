@@ -1,11 +1,15 @@
 """Word 文档信息统计工具"""
 
+from __future__ import annotations
+
 from enum import IntEnum
 from pathlib import Path
-from typing import Callable
+from typing import Callable, TYPE_CHECKING
 
-import win32com.client as win32
 from natsort import os_sorted
+
+if TYPE_CHECKING:
+    import win32com.client as win32
 
 from core.utils.CountResult import CountResult
 from core.utils.WordAppManager import WordAppManager
@@ -55,6 +59,8 @@ def get_document_statistics(
     :raises DocumentProcessingError: 统计失败时抛出
     """
     try:
+        import win32com.client as win32
+
         # 确保显示最终状态（不显示修订标记）
         document.ShowRevisions = False
 

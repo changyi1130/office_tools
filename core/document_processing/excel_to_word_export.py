@@ -1,7 +1,6 @@
 import os
 from typing import Callable
 
-import win32com.client as win32
 from core.utils.ExcelAppManager import ExcelAppManager
 from core.utils.open_file_dialog import open_file_dialog
 from core.utils.path_helper import get_resource_path

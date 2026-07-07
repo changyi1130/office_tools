@@ -1,10 +1,11 @@
 """高效批量文件页数统计工具"""
+
+from __future__ import annotations
+
 from pathlib import Path
 from time import sleep
 from typing import List, Optional, Callable
 
-import pymupdf
-import win32com.client as win32
 from natsort import os_sorted
 from core.services.logger_service import setup_logger
 from core.document_processing.get_document_statistics import get_document_statistics, WordStatisticType
@@ -46,6 +47,7 @@ class OfficeAppManager:
 
     def get_word_app(self) -> win32.CDispatch:
         """获取或创建 Word 应用实例"""
+        import win32com.client as win32
         if not self.word_app:
             self.word_app = win32.DispatchEx("Word.Application")
             self.word_app.Visible = True
@@ -53,6 +55,7 @@ class OfficeAppManager:
 
     def get_ppt_app(self) -> win32.CDispatch:
         """获取或创建 PowerPoint 应用实例"""
+        import win32com.client as win32
         if not self.ppt_app:
             self.ppt_app = win32.DispatchEx("PowerPoint.Application")
         return self.ppt_app
@@ -90,6 +93,7 @@ class OfficeAppManager:
 
 def count_pdf_pages(file_path: Path) -> CountResult:
     """统计 PDF 文件页数"""
+    import pymupdf
     try:
         with pymupdf.open(file_path) as doc:
             logger.info(f"PDF 文件页数统计成功: {file_path.name} - {len(doc)} 页")

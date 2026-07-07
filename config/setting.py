@@ -7,7 +7,7 @@ class Setting:
 
     def __init__(self):
         # 应用版本
-        self.version = "0.3.1"
+        self.version = "0.4.1"
 
         # 日志配置
         self.log_dir = Path(os.path.expanduser(r'~\Documents')) / 'OfficeTools' / 'logs'

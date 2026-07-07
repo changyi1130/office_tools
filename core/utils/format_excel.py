@@ -1,10 +1,6 @@
 """Excel 文件格式化工具（字体、对齐、冻结窗格、列宽等）"""
 
 from pathlib import Path
-from openpyxl import load_workbook
-from openpyxl.styles import Font, Alignment
-from openpyxl.utils import get_column_letter
-
 from core.services.logger_service import setup_logger
 
 logger = setup_logger('format_excel', 'format_excel.log')
@@ -18,6 +14,8 @@ def format_excel_file(file_path: str) -> None:
     :param file_path: 需要格式化的 Excel 文件路径（.xlsx 或 .xlsm）
     :raises: 文件操作或格式化的相关异常
     """
+    from openpyxl import load_workbook
+    from openpyxl.styles import Font, Alignment
     try:
         # 1. 加载工作簿并获取活动工作表
         wb = load_workbook(file_path)

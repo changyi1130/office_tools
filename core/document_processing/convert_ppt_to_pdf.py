@@ -3,8 +3,6 @@
 from pathlib import Path
 from typing import Callable
 
-from win32com.client import Dispatch
-
 from core.services.logger_service import setup_logger
 from core.utils.open_file_dialog import open_file_dialog
 from core.utils.exceptions import DocumentConversionError
@@ -44,6 +42,7 @@ def convert_ppt_to_pdf(
         progress_callback(message=f"开始转换 {total_files} 个 PPT 文件...")
     logger.info(f"开始转换 {total_files} 个 PPT 文件...")
 
+    from win32com.client import Dispatch
     success_count = 0
     ppt = Dispatch("PowerPoint.Application")
     try:

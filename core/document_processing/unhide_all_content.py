@@ -2,8 +2,6 @@
 from pathlib import Path
 from typing import Callable
 
-import win32com.client as win32
-
 from core.services.logger_service import setup_logger
 from core.utils.WordAppManager import WordAppManager
 from core.utils.exceptions import DocumentProcessingError

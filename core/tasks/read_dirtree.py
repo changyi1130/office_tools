@@ -5,10 +5,6 @@ from typing import Callable
 from pathlib import Path
 from natsort import os_sorted
 from typing import List
-from openpyxl import load_workbook
-from openpyxl.styles import Font, Alignment, Border, Side
-from openpyxl.utils import get_column_letter
-
 from core.utils.run_vba_macro import run_vba_macro
 from core.utils.write_report_to_excel import write_report_to_excel
 from core.tasks.rename_files import select_directory, is_file_hidden
@@ -108,6 +104,9 @@ def format_excel_file(file_path):
     :param file_path: 需要格式化的 Excel 文件路径（.xlsx 或 .xlsm）
     :raises: 文件操作或格式化的相关异常
     """
+    from openpyxl import load_workbook
+    from openpyxl.styles import Font, Alignment
+
     try:
         # 1. 加载工作簿并获取活动工作表
         wb = load_workbook(file_path)

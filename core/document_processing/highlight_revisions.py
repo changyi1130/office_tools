@@ -3,8 +3,6 @@
 from pathlib import Path
 from typing import Callable
 
-import win32com.client as win32
-
 from core.utils.WordAppManager import WordAppManager
 from core.utils.exceptions import DocumentProcessingError
 from core.utils.open_file_dialog import open_file_dialog
@@ -22,6 +20,8 @@ def highlight_revisions(document):
 
     :param document: Word文档对象
     """
+    import win32com.client as win32
+
     # 检查文档是否有修订
     if document.Revisions.Count == 0:
         raise DocumentProcessingError("文档中没有修订内容")

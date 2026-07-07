@@ -1,5 +1,4 @@
 from pathlib import Path
-import pandas as pd
 from typing import Union, List, Dict, Optional
 
 
@@ -26,6 +25,7 @@ def write_report_to_excel(
         PermissionError: 当文件被占用或无写入权限时
         typeError: 当数据类型不支持时
     """
+    import pandas as pd
 
     # 根据数据类型处理数据
     if isinstance(report_data, dict):

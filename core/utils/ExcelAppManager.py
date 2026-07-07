@@ -1,4 +1,3 @@
-import win32com.client as win32
 from core.services.logger_service import setup_logger
 
 logger = setup_logger('ExcelAppManager', 'excel_app_manager.log')
@@ -8,6 +7,7 @@ class ExcelAppManager:
     """上下文管理器，用于安全地创建和清理 Excel 应用实例"""
 
     def __enter__(self):
+        import win32com.client as win32
         self.excel_app = win32.DispatchEx('Excel.Application')
         self.excel_app.Visible = True
         self.excel_app.AutomationSecurity = 1  # 设置宏安全级别（1=msoAutomationSecurityLow）
