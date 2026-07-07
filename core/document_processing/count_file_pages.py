@@ -6,13 +6,10 @@ from typing import List, Optional, Callable
 import pymupdf
 import win32com.client as win32
 from natsort import os_sorted
-from openpyxl import load_workbook
-from openpyxl.styles import Font, Alignment, Border, Side
-from openpyxl.utils import get_column_letter
-
 from core.services.logger_service import setup_logger
 from core.document_processing.get_document_statistics import get_document_statistics, WordStatisticType
 from core.utils.CountResult import CountResult
+from core.utils.format_excel import format_excel_file
 from core.utils.open_file_dialog import open_file_dialog
 from core.utils.write_report_to_excel import write_report_to_excel
 
@@ -315,57 +312,3 @@ def process_page_count_collection(
         logger.error(f"页数统计失败: {str(e)}", exc_info=True)
         if progress_callback:
             progress_callback(message=f"统计失败: {str(e)}")
-
-
-def format_excel_file(file_path):
-    """
-    使用 Python 的 openpyxl 库，完全替代 VBA 宏 FormatFileTreeSheet。
-    执行与 VBA 代码完全相同的格式化操作。
-
-    :param file_path: 需要格式化的 Excel 文件路径（.xlsx 或 .xlsm）
-    :raises: 文件操作或格式化的相关异常
-    """
-    try:
-        # 1. 加载工作簿并获取活动工作表
-        wb = load_workbook(file_path)
-        ws = wb.active
-
-        # 2. 修改整个工作表的字体（对应 VBA 中的 `With Cells.Font`）
-        default_font = Font(
-            name='等线',         # .Name = "等线"
-            size=11,            # .Size = 11
-            color='FF000000',   # .ColorIndex = xlAutomatic (黑色)
-            bold=False,         # .Bold = False
-            italic=False,       # .Italic = False
-            underline='none'    # .Underline = False
-        )
-        # 应用左对齐、顶部对齐
-        # left_top_alignment = Alignment(wrap_text=True, horizontal='left', vertical='top')
-
-        # 优化：只遍历有数据的区域
-        for row in ws.iter_rows(min_row=2, max_row=ws.max_row, max_col=ws.max_column):
-            for cell in row:
-                cell.font = default_font
-                # cell.alignment = left_top_alignment
-
-        # 3. 标题行格式：设置第一行中除A1外的其他单元格居中加粗
-        for cell in ws[1]:  # 第 1 行
-            cell.alignment = Alignment(horizontal='center', vertical='top')
-            cell.font = Font(name='等线', size=11, bold=True)
-
-        # 4. 冻结窗格（对应 ActiveWindow.FreezePanes = True）
-        # 冻结第前两行
-        ws.freeze_panes = 'A2'
-
-        # 5. 设置列宽（对应 Columns("A:A").ColumnWidth = 50, Columns("B:B").ColumnWidth = 70）
-        ws.column_dimensions['A'].width = 70.0
-        ws.column_dimensions['B'].width = 12.0
-
-        # 6. 保存更改
-        wb.save(file_path)
-        logger.info(f"文件格式化完成: {file_path}")
-
-    except Exception as e:
-        # 记录错误并重新抛出，方便上层函数处理
-        logger.error(f"格式化文件时出错 {file_path}: {e}", exc_info=True)
-        raise

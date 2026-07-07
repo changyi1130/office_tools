@@ -12,6 +12,7 @@ from core.utils.WordAppManager import WordAppManager
 from core.utils.exceptions import DocumentProcessingError
 from core.utils.open_file_dialog import open_file_dialog
 from core.utils.write_report_to_excel import write_report_to_excel
+from core.utils.format_excel import format_excel_file
 
 
 # 定义统计类型枚举（更清晰）
@@ -40,14 +41,16 @@ STATISTIC_DESCRIPTIONS = {
 def get_document_statistics(
         document: win32.CDispatch,
         statistic_type: WordStatisticType,
-        include_notes: bool = True
+        include_notes: bool = True,
+        include_header_footer: bool = False
 ) -> int:
     """
     获取 Word 文档的统计信息
 
     :param document: Word 文档对象
     :param statistic_type: 统计类型
-    :param include_notes: 是否包含页眉、页脚和尾注
+    :param include_notes: 是否包含脚注和尾注
+    :param include_header_footer: 是否统计页眉页脚（自动跳过链接到前一节的）
     :return: 统计结果
     :raises DocumentProcessingError: 统计失败时抛出
     """
@@ -55,11 +58,26 @@ def get_document_statistics(
         # 确保显示最终状态（不显示修订标记）
         document.ShowRevisions = False
 
-        # 获取统计信息
-        return document.ComputeStatistics(
+        # 1. 基础统计（正文 + 脚注/尾注）
+        total = document.ComputeStatistics(
             Statistic=statistic_type,
             IncludeFootnotesAndEndnotes=include_notes
         )
+
+        # 2. 页眉页脚统计（仅在开启且统计类型不是"页数"时执行）
+        if include_header_footer and statistic_type != WordStatisticType.PAGES:
+            for sec in document.Sections:
+                # 遍历页眉（三种类型：主要、首页、偶数页）
+                for hf in sec.Headers:
+                    if hf.Exists and not hf.LinkToPrevious:
+                        total += hf.Range.ComputeStatistics(statistic_type)
+                # 遍历页脚
+                for hf in sec.Footers:
+                    if hf.Exists and not hf.LinkToPrevious:
+                        total += hf.Range.ComputeStatistics(statistic_type)
+
+        return total
+
     except Exception as e:
         raise DocumentProcessingError(f"统计信息失败: {str(e)}") from e
 
@@ -67,13 +85,15 @@ def get_document_statistics(
 def process_word_statistics(
         progress_callback: Callable[..., None],
         statistic_type: WordStatisticType = WordStatisticType.PAGES,
-        include_notes: bool = True
+        include_notes: bool = True,
+        include_header_footer: bool = False
 ) -> None:
     """
     主处理函数：收集 Word 文档统计信息
 
     :param statistic_type: 统计类型（默认页数）
-    :param include_notes: 是否包含页眉页脚（默认 True）
+    :param include_notes: 是否包含脚注和尾注（默认 True）
+    :param include_header_footer: 是否统计页眉页脚（默认 False）
     :param progress_callback: 状态更新回调
     """
     try:
@@ -103,22 +123,26 @@ def process_word_statistics(
                 file_path = Path(file_path)
                 progress_callback(message=f"处理中：{i} / {total_files}")
 
+                doc = None
                 try:
                     # 打开文档
                     doc = word_app.Documents.Open(str(file_path))
 
                     # 获取统计信息
-                    count = get_document_statistics(doc, statistic_type, include_notes)
+                    count = get_document_statistics(
+                        doc,
+                        statistic_type,
+                        include_notes,
+                        include_header_footer
+                    )
                     results.append(CountResult(file_path=file_path, page_count=count))
-                    # results.append(f"{file_path.name}\t{count}")
 
                 except DocumentProcessingError as e:
                     # 记录错误但继续处理其他文件
                     results.append(CountResult(file_path=file_path, error=f"错误: {str(e)}"))
-                    # results.append(f"{file_path.name}\t错误: {str(e)}")
                 finally:
                     # 确保文档关闭
-                    if 'doc' in locals():
+                    if doc is not None:
                         doc.Close(SaveChanges=False)
 
         # 处理结果
@@ -129,10 +153,12 @@ def process_word_statistics(
         report_name = f"000--文档统计-{stat_desc}.xlsx"
         report_path = output_dir / report_name
         column_headers = ['文件名称', stat_desc]
-        # write_text_to_file(contents=results, target_path=report_path)
         write_report_to_excel(report_data=result_data,
                               column_headers=column_headers,
                               output_path=report_path)
+
+        # 美化 Excel 格式（字体、对齐、冻结窗格、列宽等）
+        format_excel_file(str(report_path))
 
         progress_callback(message=f"统计完成！报告已保存至:\n{report_path}")
 
