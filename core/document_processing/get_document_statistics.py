@@ -165,7 +165,7 @@ def process_word_statistics(
         with WordAppManager() as word_app:
             for i, file_path in enumerate(file_paths, 1):
                 file_path = Path(file_path)
-                progress_callback(message=f"处理中：{i} / {total_files}")
+                progress_callback(i, total_files, f"处理中：{i} / {total_files}")
 
                 doc = None
                 try:
@@ -204,7 +204,7 @@ def process_word_statistics(
         # 美化 Excel 格式（字体、对齐、冻结窗格、列宽等）
         format_excel_file(str(report_path))
 
-        progress_callback(message=f"统计完成！报告已保存至:\n{report_path}")
+        progress_callback(total_files, total_files, f"统计完成！报告已保存至:\n{report_path}")
 
     except Exception as e:
         progress_callback(message=f"统计失败: {str(e)}")
