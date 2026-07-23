@@ -63,7 +63,7 @@ def main():
     cmd = [
         "pyinstaller",
         # "--onefile",  # 打包成单个exe
-        "--onedir",  # 打包成单目录
+        "--onefile",  # 打包成单目录
         "--windowed",  # 不显示控制台窗口 (对于GUI应用)
         "--clean",     # 清理临时文件
         f"--name={PROJECT_NAME}",

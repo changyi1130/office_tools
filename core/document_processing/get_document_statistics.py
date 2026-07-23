@@ -41,6 +41,35 @@ STATISTIC_DESCRIPTIONS = {
     WordStatisticType.FAR_EAST_CHARACTERS: "中文字符和朝鲜语单词"
 }
 
+# 页眉类型
+class HeaderFooterType(IntEnum):
+    wdHeaderFooterPrimary = 1     # 主页眉/页脚（奇数页）
+    wdHeaderFooterFirstPage = 2   # 首页页眉/页脚
+    wdHeaderFooterEvenPages = 3   # 偶数页页眉/页脚
+
+
+def _count_shapes(shapes, statistic_type: WordStatisticType) -> int:
+    """
+    递归统计形状集合中所有文字的统计量
+    对应 VBA: CountShapesText（只处理 TextFrame，递归处理组合形状 GroupItems）
+    注意：HeaderFooter.Shapes 返回的是全局集合，此函数应只调用一次。
+    """
+    total = 0
+    for shape in shapes:
+        try:
+            if shape.TextFrame.HasText:
+                total += shape.TextFrame.TextRange.ComputeStatistics(statistic_type)
+        except:
+            pass
+
+        # 递归处理组合形状（msoGroup = 6）
+        try:
+            if shape.Type == 6:
+                total += _count_shapes(shape.GroupItems, statistic_type)
+        except:
+            pass
+    return total
+
 
 def get_document_statistics(
         document: win32.CDispatch,
@@ -72,15 +101,24 @@ def get_document_statistics(
 
         # 2. 页眉页脚统计（仅在开启且统计类型不是"页数"时执行）
         if include_header_footer and statistic_type != WordStatisticType.PAGES:
+            # 2a. 遍历所有节，累加各未链接页眉/页脚的主体文本
             for sec in document.Sections:
-                # 遍历页眉（三种类型：主要、首页、偶数页）
                 for hf in sec.Headers:
                     if hf.Exists and not hf.LinkToPrevious:
                         total += hf.Range.ComputeStatistics(statistic_type)
-                # 遍历页脚
                 for hf in sec.Footers:
                     if hf.Exists and not hf.LinkToPrevious:
                         total += hf.Range.ComputeStatistics(statistic_type)
+
+            # 2b. 统计形状（只调用一次——HeaderFooter.Shapes 返回全局集合）
+            try:
+                first_header = document.Sections(1).Headers(1)
+                if first_header.Exists:
+                    total += _count_shapes(first_header.Shapes, statistic_type)
+                else:
+                    total += _count_shapes(document.Sections(1).Footers(1).Shapes, statistic_type)
+            except:
+                pass
 
         return total
 

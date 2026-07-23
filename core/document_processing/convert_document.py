@@ -21,12 +21,12 @@ CONVERSION_TYPES = {
         "success_msg": "已转存为高版本 DOCX"
     },
     "docx_to_doc": {
-        "filter": [("Word 文档", "*.docx")],
+        "filter": [("Word 文档", "*.docx"), ("RTF 文档", "*.rtf")],
         "function": "convert_to_doc",
         "success_msg": "已转存为低版本 DOC"
     },
     "to_pdf": {
-        "filter": [("Word 文档", "*.doc*")],
+        "filter": [("Word 文档", "*.doc*"), ("RTF 文档", "*.rtf")],
         "function": "convert_to_pdf",
         "success_msg": "已转存为 PDF"
     },

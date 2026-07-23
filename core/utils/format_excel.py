@@ -44,7 +44,7 @@ def format_excel_file(file_path: str) -> None:
 
         # 5. 设置列宽
         ws.column_dimensions['A'].width = 70.0
-        ws.column_dimensions['B'].width = 12.0
+        ws.column_dimensions['B'].width = 16.0
 
         # 6. 保存更改
         wb.save(file_path)

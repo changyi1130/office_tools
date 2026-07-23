@@ -115,12 +115,12 @@ BUTTON_GROUPS = [
             {"text": "统计字数(+)",
              "command": process_word_statistics,
              "command_kwargs": {"statistic_type": WordStatisticType.WORDS, "include_header_footer": True},
-             "tip": "统计 Word 文档字数（与 + 一致）",
+             "tip": "统计 Word 文档字数（与 + 一致\n统计结果不包含内嵌文件）",
              "placeholder": False},
             {"text": "统计字符数(+)",
              "command": process_word_statistics,
              "command_kwargs": {"statistic_type": WordStatisticType.CHARACTERS_NO_SPACES, "include_header_footer": True},
-             "tip": "统计 Word 文档字符数（与 + 一致）",
+             "tip": "统计 Word 文档字符数（与 + 一致\n统计结果不包含内嵌文件）",
              "placeholder": False}
         ]
     },
